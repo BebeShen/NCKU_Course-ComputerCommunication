@@ -6,7 +6,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h> 
-#include <stdbool.h>
 #define SIZE 1024
 
 void error(const char *msg)
@@ -15,7 +14,7 @@ void error(const char *msg)
     exit(0);
 }
 
-bool getFile(int sockfd){
+void getFile(int sockfd){
     int n;
     FILE *fp;
     char *filename = "recv.txt";
@@ -26,12 +25,10 @@ bool getFile(int sockfd){
         n = recv(sockfd, buffer, SIZE, 0);
         if (n <= 0){
             break;
-            return;
         }
         fprintf(fp, "%s", buffer);
         bzero(buffer, SIZE);
     }
-    return TRUE;
 }
 
 int main(int argc, char *argv[])

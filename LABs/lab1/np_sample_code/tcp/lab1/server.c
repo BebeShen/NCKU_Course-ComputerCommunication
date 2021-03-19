@@ -7,8 +7,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h> // define sockaddr_in
-#include <stdbool.h>
 #define SIZE 1024
+char *filename = "send.txt";
 
 void error(const char *msg)
 {
@@ -16,7 +16,7 @@ void error(const char *msg)
     exit(1);
 }
 
-bool sendFile(FILE *fp, int sockfd){
+void sendFile(FILE *fp, int sockfd){
     int n;
     char data[SIZE] = {0};
 
@@ -28,7 +28,7 @@ bool sendFile(FILE *fp, int sockfd){
         }
         bzero(data, SIZE);
     }
-    return TRUE;
+    printf("[+] Sent File:%s to Client Successfully!\n", filename);
 }
 
 int main(int argc, char *argv[])
@@ -105,13 +105,11 @@ int main(int argc, char *argv[])
     n = write(newsockfd,"Establist Connection",20);
     if (n < 0) error("[-]ERROR on write msg\n");
     FILE *fp;
-    char *filename = "send.txt";
     fp = fopen(filename, "r");
     if (fp == NULL) {
         error("[-]Error in reading file.\n");
     }
-    if(sendFile(fp, newsockfd))
-        printf("[+] Sent File:%s to Client Successfully!\n", filename);
+    sendFile(fp, newsockfd)
     printf("[+]Closing the connection.\n");
     // 關閉client的socket
     close(newsockfd);
