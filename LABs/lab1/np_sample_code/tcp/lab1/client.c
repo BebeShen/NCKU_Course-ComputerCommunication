@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
     //      error("ERROR reading from socket");
     // printf("%s\n",buffer);
     
-    //TODO: File Transfer
+    // File Transfer
     printf("%s\n",buffer);
     getFile(sockfd);
     // 關閉socket

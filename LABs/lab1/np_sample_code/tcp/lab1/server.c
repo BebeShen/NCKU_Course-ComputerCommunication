@@ -8,7 +8,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h> // define sockaddr_in
 #define SIZE 1024
-char *filename = "send.txt";
+char *filename = "data.txt";
 
 void error(const char *msg)
 {
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
     //  n = write(newsockfd,"I got your message",18);
     //  if (n < 0) error("ERROR writing to socket");
     
-    //TODO: File Transfer
+    // File Transfer
     // n = write(newsockfd,"Establist Connection",20);
     // if (n < 0) error("[-]ERROR on write msg\n");
     FILE *fp;
