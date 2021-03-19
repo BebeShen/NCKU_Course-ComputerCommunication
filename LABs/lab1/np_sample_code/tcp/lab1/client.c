@@ -6,11 +6,31 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h> 
+#define SIZE 1024
 
 void error(const char *msg)
 {
     perror(msg);
     exit(0);
+}
+
+bool getFile(int sockfd){
+    int n;
+    FILE *fp;
+    char *filename = "recv.txt";
+    char buffer[SIZE];
+
+    fp = fopen(filename, "w");
+    while (1) {
+        n = recv(sockfd, buffer, SIZE, 0);
+        if (n <= 0){
+            break;
+            return;
+        }
+        fprintf(fp, "%s", buffer);
+        bzero(buffer, SIZE);
+    }
+    return true;
 }
 
 int main(int argc, char *argv[])
@@ -37,6 +57,8 @@ int main(int argc, char *argv[])
     // Socket物件若建立失敗會回傳-1，表示INVALID_SOCKET
     if (sockfd < 0) 
         error("ERROR opening socket");
+    else
+        printf("[+]Server socket created successfully.\n");
     // 透過name取得host address
     // struct hostent *gethostbyname(const char *name);
     //      gethostbyname的return值是hostent的struct的指標
@@ -57,21 +79,29 @@ int main(int argc, char *argv[])
     // 建立與Server的連線
     if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
         error("ERROR connecting");
-    printf("Please enter the message: ");
-    bzero(buffer,256);
-    // 從stdin拿取要輸入的訊息，並寫入buffer
-    fgets(buffer,255,stdin);
-    // 將buffer的訊息寫入socket傳給server
-    n = write(sockfd,buffer,strlen(buffer));
-    if (n < 0) 
-         error("ERROR writing to socket");
-    // 清空buffer
-    bzero(buffer,256);
-    // 從server讀取訊息
+    else
+        printf("[+]Connected to Server.\n");
+    // printf("Please enter the message: ");
+    // bzero(buffer,256);
+    // // 從stdin拿取要輸入的訊息，並寫入buffer
+    // fgets(buffer,255,stdin);
+    // // 將buffer的訊息寫入socket傳給server
+    // n = write(sockfd,buffer,strlen(buffer));
+    // if (n < 0) 
+    //      error("ERROR writing to socket");
+    // // 清空buffer
+    // bzero(buffer,256);
+    // // 從server讀取訊息
+    // n = read(sockfd,buffer,255);
+    // if (n < 0) 
+    //      error("ERROR reading from socket");
+    // printf("%s\n",buffer);
+    
+    //TODO: File Transfer
     n = read(sockfd,buffer,255);
-    if (n < 0) 
-         error("ERROR reading from socket");
+    if (n < 0) error("[-]ERROR on read msg");
     printf("%s\n",buffer);
+    getFile(sockfd);
     // 關閉socket
     close(sockfd);
     return 0;
