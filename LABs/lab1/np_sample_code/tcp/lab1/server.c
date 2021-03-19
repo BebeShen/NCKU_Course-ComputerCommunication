@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h> // define sockaddr_in
+#include <stdbool.h>
 #define SIZE 1024
 
 void error(const char *msg)
