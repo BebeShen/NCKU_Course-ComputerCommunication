@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
     if (fp == NULL) {
         error("[-]Error in reading file.\n");
     }
-    sendFile(fp, newsockfd)
+    sendFile(fp, newsockfd);
     printf("[+]Closing the connection.\n");
     // 關閉client的socket
     close(newsockfd);
