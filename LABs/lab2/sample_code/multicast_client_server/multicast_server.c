@@ -13,14 +13,20 @@ int datalen = sizeof(databuf);
  
 int main (int argc, char *argv[ ])
 {
-/* Create a datagram socket on which to send. */
+	/* Create a datagram socket on which to send. */
+	// int socket(int domain, int type, int protocol);
+	// 建立名為sd的socket()物件
+	// - domain：	AF_INET，表示此Socket目的是Hosts之間的連線，且是採用IPv4。
+	// - type：		SOCK_DGRM，表示此Socket的傳輸方式是Datagram，屬於UDP。
+	// - protocol：	0，讓kernel選擇type對應的默認協議。
 	sd = socket(AF_INET, SOCK_DGRAM, 0);
+	// Socket物件若建立失敗會回傳-1，表示INVALID_SOCKET
 	if(sd < 0)
 	{
 	  perror("Opening datagram socket error");
 	  exit(1);
 	}
-	else
+	else	// Socket建立成功
 	  printf("Opening the datagram socket...OK.\n");
 	 
 	/* Initialize the group sockaddr structure with a */
