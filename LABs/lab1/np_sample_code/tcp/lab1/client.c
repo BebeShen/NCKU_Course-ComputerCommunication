@@ -30,7 +30,7 @@ bool getFile(int sockfd){
         fprintf(fp, "%s", buffer);
         bzero(buffer, SIZE);
     }
-    return true;
+    return TRUE;
 }
 
 int main(int argc, char *argv[])

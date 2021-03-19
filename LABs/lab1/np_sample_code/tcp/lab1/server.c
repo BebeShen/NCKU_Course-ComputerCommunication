@@ -27,7 +27,7 @@ bool sendFile(FILE *fp, int sockfd){
         }
         bzero(data, SIZE);
     }
-    return true;
+    return TRUE;
 }
 
 int main(int argc, char *argv[])
