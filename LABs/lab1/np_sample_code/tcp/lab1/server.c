@@ -102,8 +102,8 @@ int main(int argc, char *argv[])
     //  if (n < 0) error("ERROR writing to socket");
     
     //TODO: File Transfer
-    n = write(newsockfd,"Establist Connection",20);
-    if (n < 0) error("[-]ERROR on write msg\n");
+    // n = write(newsockfd,"Establist Connection",20);
+    // if (n < 0) error("[-]ERROR on write msg\n");
     FILE *fp;
     fp = fopen(filename, "r");
     if (fp == NULL) {

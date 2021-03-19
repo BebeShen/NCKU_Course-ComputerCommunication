@@ -96,8 +96,8 @@ int main(int argc, char *argv[])
     // printf("%s\n",buffer);
     
     //TODO: File Transfer
-    n = read(sockfd,buffer,255);
-    if (n < 0) error("[-]ERROR on read msg");
+    // n = read(sockfd,buffer,255);
+    // if (n < 0) error("[-]ERROR on read msg");
     printf("%s\n",buffer);
     getFile(sockfd);
     // 關閉socket
