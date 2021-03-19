@@ -19,9 +19,14 @@ void error(const char *msg)
 void sendFile(FILE *fp, int sockfd){
     int n;
     char data[SIZE] = {0};
-
+    // get file size
+    long file_size = 0;
+    fseek(fp, 0, SEEK_END);     //把file內部pointer移動到文件尾     
+    file_size = ftell(fp);      //返回目前pointer與文件起始位置的偏離量(即data size)
+    fseek(fp, 0, SEEK_SET);     //把file内部pointer移回到文件起始位置
+    printf("File size:%ld\n",file_size);
     while(fgets(data, SIZE, fp) != NULL) {
-        printf("File Transferring...\n");
+        printf("File Transferring...\nSending:%s",data);
         if (send(sockfd, data, sizeof(data), 0) == -1) {
             perror("[-]Error in sending file.\n");
             exit(1);
