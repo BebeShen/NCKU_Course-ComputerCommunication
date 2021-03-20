@@ -9,7 +9,7 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <netinet/in.h> // define sockaddr_in
-#define SIZE 1024
+#define SIZE 512
 char *filename = "send.txt";
 
 int get_file_size(char* file_name){
@@ -36,35 +36,29 @@ void sendFile(FILE *fp, int sockfd){
     printf("File size:%ld\n",file_size);
     */
     file_size = get_file_size(filename);
-    printf("Test stat file size:%ld\n",file_size);
-    /*
+    printf("[+] File size:%ld\n",file_size);
+    send(sockfd, file_size, sizeof(file_size), 0));
+    
     char* file_content = malloc(file_size);
     fread(file_content, file_size, 1, fp);
-    printf("%s\n",file_content);
+    printf("[+] File content:%s\n",file_content);
     send(sockfd, file_content, file_size, 0);
     free(file_content);
-    */
+    /*
     long cur_size = 0;
     int length;
-    time_t cur_time;
     while(fgets(data, SIZE, fp) != NULL) {
         printf("File Transferring...\nSending:%s %ld\n",data,sizeof(data));
-   	if ((length = send(sockfd, data, sizeof(data), 0)) == -1) {
-            perror("[-]Error in sending file.\n");
-            exit(1);
-        }
-	cur_size += length;
-	printf("[+] receive data size:%d\n",length);
-	//if(cur_size >= file_size){
-	    char buf[80];
-	    printf("%ld %ld\n",file_size,cur_size);
-	    time(&cur_time);
-	    strftime(buf, 80, "%Y/%m/%d %X", localtime(&cur_time));
-	    printf("100%% %s\n",buf);
-	//}
+        if ((length = send(sockfd, data, sizeof(data), 0)) == -1) {
+                perror("[-]Error in sending file.\n");
+                exit(1);
+            }
+        cur_size += length;
+        printf("[+] Current sent data size:%d\n",cur_size);
+        printf("%ld %ld\n",file_size,cur_size);
         bzero(data, SIZE);
     }
-    
+    */
     printf("[+] Sent File:%s to Client Successfully!\n", filename);
 }
 
@@ -79,7 +73,7 @@ int main(int argc, char *argv[])
     // $ ./<執行檔檔名> <port number>
     // 例如：./server 5566
     if (argc < 2) {
-        fprintf(stderr,"[-]ERROR, no port provided\n");
+        fprintf(stderr,"[-] ERROR, no port provided\n");
         exit(1);
     }
     // int socket(int domain, int type, int protocol);
@@ -91,9 +85,9 @@ int main(int argc, char *argv[])
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     // Socket物件若建立失敗會回傳-1，表示INVALID_SOCKET
     if (sockfd < 0)
-        error("[-]ERROR opening socket\n");
+        error("[-] ERROR opening socket\n");
     else
-        printf("[+]Server socket created successfully.\n");
+        printf("[+] Server socket created successfully.\n");
     // 利用bzero初始化，將struct sockaddr_in serv_addr涵蓋的bits設為0
     bzero((char *) &serv_addr, sizeof(serv_addr));
     // 獲取傳進來的port number參數
@@ -112,12 +106,12 @@ int main(int argc, char *argv[])
     // 不論當Clinet或當Server，都需要給Socket一份address
     // 若bind失敗會回傳-1，若成功則回傳0
     if (bind(sockfd, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
-        error("[-]ERROR on binding\n");
+        error("[-] ERROR on binding\n");
     else
-        printf("[+]Binding successfull.\n");
+        printf("[+] Binding successfull.\n");
     // 開啟Server的監聽，並設置最多5個Client連線
     listen(sockfd,5);
-    printf("[+]Listening....\n");
+    printf("[+] Listening....\n");
     clilen = sizeof(cli_addr);
     // Server接收連線請求
     // - cli_addr:     用於儲存接收到的Client端相關資訊，比如port、IP address。
@@ -125,7 +119,7 @@ int main(int argc, char *argv[])
     // - Return Value: 0表成功, -1表失敗。
     newsockfd = accept(sockfd,(struct sockaddr *) &cli_addr,&clilen);
     if (newsockfd < 0)
-        error("[-]ERROR on accept\n");
+        error("[-] ERROR on accept\n");
         
     //  // 將buffer歸零
     //  bzero(buffer,256);
@@ -144,10 +138,10 @@ int main(int argc, char *argv[])
     FILE *fp;
     fp = fopen(filename, "r");
     if (fp == NULL) {
-        error("[-]Error in reading file.\n");
+        error("[-] Error in reading file.\n");
     }
     sendFile(fp, newsockfd);
-    printf("[+]Closing the connection.\n");
+    printf("[+] Closing the connection.\n");
     // 關閉client的socket
     close(newsockfd);
     // 關閉server的socket

@@ -6,7 +6,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h> 
-#define SIZE 1024
+#include <time.h>
+#define SIZE 512
 
 void error(const char *msg)
 {
@@ -17,19 +18,34 @@ void error(const char *msg)
 void getFile(int sockfd){
     int n;
     FILE *fp;
+    time_t cur_time;
+    char timebuf[80];
     char *filename = "recv.txt";
     char buffer[SIZE];
+    long file_size,recv_size = 0;
 
+    n = read(sockfd, buffer, SIZE);
+    file_size = atol(buffer);
+    printf("[+] File size:%ld\n",file_size);
+    bzero(buffer, SIZE);
     fp = fopen(filename, "w");
-    while (1) {
-        n = read(sockfd, buffer, SIZE);
-        if (n <= 0){
-            break;
-        }
-	printf("[+] receive size:%d\n",n);
-        fprintf(fp, "%s", buffer);
-        bzero(buffer, SIZE);
+    // while (1) {
+    //     n = read(sockfd, buffer, SIZE);
+    //     if (n <= 0){
+    //         break;
+    //     }
+    //     recv_size += n;
+	//     printf("[+] Current received data size:%d\n",recv_size);
+    //     fprintf(fp, "%s", buffer);
+    //     bzero(buffer, SIZE);
+    // }
+    while( (n = read(sockfd,buffer,size(buffer))) > 0){
+        write(fp, buffer, n);
+        recv_size += n;
     }
+    time(&cur_time);
+    strftime(timebuf, 80, "%Y/%m/%d %X", localtime(&cur_time));
+    printf("[Info]:\n\n100%% %s\n",timebuf);
 }
 
 int main(int argc, char *argv[])
@@ -55,15 +71,15 @@ int main(int argc, char *argv[])
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     // Socket物件若建立失敗會回傳-1，表示INVALID_SOCKET
     if (sockfd < 0) 
-        error("ERROR opening socket");
+        error("[-] ERROR opening socket");
     else
-        printf("[+]Server socket created successfully.\n");
+        printf("[+] Server socket created successfully.\n");
     // 透過name取得host address
     // struct hostent *gethostbyname(const char *name);
     //      gethostbyname的return值是hostent的struct的指標
     server = gethostbyname(argv[1]);
     if (server == NULL) {
-        fprintf(stderr,"ERROR, no such host\n");
+        fprintf(stderr,"[-] ERROR, no such host\n");
         exit(0);
     }
     // 利用bzero初始化，將struct sockaddr_in serv_addr涵蓋的bits設為0
@@ -77,9 +93,9 @@ int main(int argc, char *argv[])
     serv_addr.sin_port = htons(portno);
     // 建立與Server的連線
     if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
-        error("ERROR connecting");
+        error("[-] ERROR connecting");
     else
-        printf("[+]Connected to Server.\n");
+        printf("[+] Connected to Server.\n");
     // printf("Please enter the message: ");
     // bzero(buffer,256);
     // // 從stdin拿取要輸入的訊息，並寫入buffer
@@ -97,8 +113,9 @@ int main(int argc, char *argv[])
     // printf("%s\n",buffer);
     
     // File Transfer
-    printf("%s\n",buffer);
+    // printf("%s\n",buffer);
     getFile(sockfd);
+    printf("[+] Closing the connection.\n");
     // 關閉socket
     close(sockfd);
     return 0;
