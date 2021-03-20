@@ -33,14 +33,21 @@ void sendFile(FILE *fp, int sockfd){
     fseek(fp, 0, SEEK_SET);     //把file内部pointer移回到文件起始位置
     printf("File size:%ld\n",file_size);
     printf("Test stat file size:%d",get_file_size(filename));
+    char* file_content = malloc(get_file_size(filename));
+    fread(file_content, file_size, 1, fp);
+    printf("%s\n",file_content);
+    send(sockfd, file_content, file_size, 0);
+    free(file_content);
+    /*
     while(fgets(data, SIZE, fp) != NULL) {
         printf("File Transferring...\nSending:%s",data);
-        if (send(sockfd, data, sizeof(data), 0) == -1) {
+   	if (send(sockfd, data, sizeof(data), 0) == -1) {
             perror("[-]Error in sending file.\n");
             exit(1);
         }
         bzero(data, SIZE);
     }
+    */
     printf("[+] Sent File:%s to Client Successfully!\n", filename);
 }
 
