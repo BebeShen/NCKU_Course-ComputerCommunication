@@ -41,7 +41,8 @@ void getFile(int sockfd){
 	//     printf("[+] Current received data size:%d\n",recv_size);
     //     fprintf(fp, "%s", buffer);
     //     bzero(buffer, SIZE);
-    // }
+    // } 
+    clock_t start_time = clock();
     while( (n = read(sockfd,buffer,sizeof(buffer))) > 0){
         write(fp, buffer, n);
         recv_size += n;
@@ -49,10 +50,14 @@ void getFile(int sockfd){
             printf("[Info] Data received:%ld/%ld\n",recv_size,file_size);
             time(&cur_time);
             strftime(timebuf, 80, "%Y/%m/%d %X", localtime(&cur_time));
-            printf("[Info]:\n\n\t%d%% %s\n", _25*25, timebuf);
+            printf("[Info]:%d%% %s\n", _25*25, timebuf);
+            printf("----------------------------------\n");
             _25++;
         }
     }
+    clock_t end = clock();
+    double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("[+] Total tran time: %d ms\n", time_spent);
 }
 
 int main(int argc, char *argv[])
