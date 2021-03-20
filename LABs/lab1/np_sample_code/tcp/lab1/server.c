@@ -6,9 +6,16 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include<sys/stat.h>
 #include <netinet/in.h> // define sockaddr_in
-#define SIZE 1024
-char *filename = "data.txt";
+#define SIZE 1048576
+char *filename = "data_200kb.txt";
+
+int get_file_size(char* file_name){
+    struct stat statbuf;
+    stat(file_name, &statbuf);
+    return statbuf.st_size;
+}
 
 void error(const char *msg)
 {
@@ -25,6 +32,7 @@ void sendFile(FILE *fp, int sockfd){
     file_size = ftell(fp);      //返回目前pointer與文件起始位置的偏離量(即data size)
     fseek(fp, 0, SEEK_SET);     //把file内部pointer移回到文件起始位置
     printf("File size:%ld\n",file_size);
+    printf("Test stat file size:%d",get_file_size(filename));
     while(fgets(data, SIZE, fp) != NULL) {
         printf("File Transferring...\nSending:%s",data);
         if (send(sockfd, data, sizeof(data), 0) == -1) {
