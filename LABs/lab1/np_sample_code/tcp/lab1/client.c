@@ -44,6 +44,8 @@ void getFile(int sockfd){
     while( (n = read(sockfd,buffer,sizeof(buffer))) > 0){
         write(fp, buffer, n);
         recv_size += n;
+	if(recv_size >= file_size/2)
+	    printf("[+] Data received:%ld/%ld\n",recv_size,file_size);
     }
     printf("[+] FIle size:%ld\n",recv_size);
     time(&cur_time);
