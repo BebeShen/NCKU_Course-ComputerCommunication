@@ -6,6 +6,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h> 
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <time.h>
 #define SIZE 512
 
@@ -17,18 +19,18 @@ void error(const char *msg)
 
 void getFile(int sockfd){
     int n;
-    FILE *fp;
+    int fp;
     time_t cur_time;
     char timebuf[80];
     char *filename = "recv.txt";
     char buffer[SIZE];
     long file_size,recv_size = 0;
 
-    n = read(sockfd, buffer, SIZE);
-    file_size = atol(buffer);
+    n = recv(sockfd, &file_size, sizeof(file_size),0);
+    // file_size = atol(buffer);
     printf("[+] File size:%ld\n",file_size);
     bzero(buffer, SIZE);
-    fp = fopen(filename, "w");
+    fp = open(filename, O_CREAT | O_WRONLY, 0644);
     // while (1) {
     //     n = read(sockfd, buffer, SIZE);
     //     if (n <= 0){
@@ -39,13 +41,14 @@ void getFile(int sockfd){
     //     fprintf(fp, "%s", buffer);
     //     bzero(buffer, SIZE);
     // }
-    while( (n = read(sockfd,buffer,size(buffer))) > 0){
+    while( (n = read(sockfd,buffer,sizeof(buffer))) > 0){
         write(fp, buffer, n);
         recv_size += n;
     }
+    printf("[+] FIle size:%ld\n",recv_size);
     time(&cur_time);
     strftime(timebuf, 80, "%Y/%m/%d %X", localtime(&cur_time));
-    printf("[Info]:\n\n100%% %s\n",timebuf);
+    printf("[Info]:\n\n\t\t100%% %s\n",timebuf);
 }
 
 int main(int argc, char *argv[])

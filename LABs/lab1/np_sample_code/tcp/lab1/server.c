@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 #include <time.h>
 #include <netinet/in.h> // define sockaddr_in
 #define SIZE 512
@@ -28,21 +29,26 @@ void sendFile(FILE *fp, int sockfd){
     int n;
     char data[SIZE] = {0};
     // get file size
-    long file_size = 0;
+    long file_size;
     /*
     fseek(fp, 0, SEEK_END);     //把file內部pointer移動到文件尾     
     file_size = ftell(fp);      //返回目前pointer與文件起始位置的偏離量(即data size)
     fseek(fp, 0, SEEK_SET);     //把file内部pointer移回到文件起始位置
     printf("File size:%ld\n",file_size);
     */
-    file_size = get_file_size(filename);
+
+    // file_size = get_file_size(filename);
+    int fd = open(filename, O_RDONLY);
+    struct stat stat_buf;
+    fstat(fd, &stat_buf);
+    file_size = stat_buf.st_size;
     printf("[+] File size:%ld\n",file_size);
-    send(sockfd, file_size, sizeof(file_size), 0));
+    send(sockfd, &file_size, sizeof(file_size), 0);
     
-    char* file_content = malloc(file_size);
-    fread(file_content, file_size, 1, fp);
-    printf("[+] File content:%s\n",file_content);
-    send(sockfd, file_content, file_size, 0);
+    char* file_content = malloc(stat_buf.st_size);
+    fread(file_content, stat_buf.st_size, 1, fp);
+    printf("[+] File content:\n%s\n",file_content);
+    send(sockfd, file_content, stat_buf.st_size, 0);
     free(file_content);
     /*
     long cur_size = 0;
