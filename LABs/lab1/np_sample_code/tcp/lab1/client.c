@@ -55,9 +55,10 @@ void getFile(int sockfd){
             _25++;
         }
     }
-    clock_t end = clock();
-    double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-    printf("[+] Total tran time: %d ms\n", time_spent);
+    clock_t end_time = clock();
+    double time_spent = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+    printf("[+] Total tran time: %d ms\n", (int)(time_spent*1000));
+    printf("[+] FIle Size:%ld MB\n", (file_size/1024)/1024);
 }
 
 int main(int argc, char *argv[])

@@ -11,7 +11,7 @@
 #include <time.h>
 #include <netinet/in.h> // define sockaddr_in
 #define SIZE 512
-char *filename = "data_200kb.txt";
+char *filename = "data.txt";
 
 int get_file_size(char* file_name){
     struct stat statbuf;
