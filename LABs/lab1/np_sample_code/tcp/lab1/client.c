@@ -20,11 +20,12 @@ void error(const char *msg)
 void getFile(int sockfd){
     int n;
     int fp;
+    int _25 = 1;
     time_t cur_time;
     char timebuf[80];
     char *filename = "recv.txt";
     char buffer[SIZE];
-    long file_size,recv_size = 0;
+    long file_size, recv_size = 0;
 
     n = recv(sockfd, &file_size, sizeof(file_size),0);
     // file_size = atol(buffer);
@@ -40,15 +41,24 @@ void getFile(int sockfd){
 	//     printf("[+] Current received data size:%d\n",recv_size);
     //     fprintf(fp, "%s", buffer);
     //     bzero(buffer, SIZE);
-    // }
+    // } 
+    clock_t start_time = clock();
     while( (n = read(sockfd,buffer,sizeof(buffer))) > 0){
         write(fp, buffer, n);
         recv_size += n;
+        if(recv_size >= (file_size/4)*_25){
+            printf("[Info] Data received:%ld/%ld\n",recv_size,file_size);
+            time(&cur_time);
+            strftime(timebuf, 80, "%Y/%m/%d %X", localtime(&cur_time));
+            printf("[Info]:%d%% %s\n", _25*25, timebuf);
+            printf("----------------------------------\n");
+            _25++;
+        }
     }
-    printf("[+] FIle size:%ld\n",recv_size);
-    time(&cur_time);
-    strftime(timebuf, 80, "%Y/%m/%d %X", localtime(&cur_time));
-    printf("[Info]:\n\n\t\t100%% %s\n",timebuf);
+    clock_t end_time = clock();
+    double time_spent = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+    printf("[+] Total tran time: %d ms\n", (int)(time_spent*1000));
+    printf("[+] FIle Size:%ld MB\n", (file_size/1024)/1024);
 }
 
 int main(int argc, char *argv[])

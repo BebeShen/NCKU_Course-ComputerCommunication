@@ -11,7 +11,7 @@
 #include <time.h>
 #include <netinet/in.h> // define sockaddr_in
 #define SIZE 512
-char *filename = "send.txt";
+char *filename = "data.txt";
 
 int get_file_size(char* file_name){
     struct stat statbuf;
@@ -47,7 +47,7 @@ void sendFile(FILE *fp, int sockfd){
     
     char* file_content = malloc(stat_buf.st_size);
     fread(file_content, stat_buf.st_size, 1, fp);
-    printf("[+] File content:\n%s\n",file_content);
+    // printf("[+] File content:\n%s\n",file_content);
     send(sockfd, file_content, stat_buf.st_size, 0);
     free(file_content);
     /*
