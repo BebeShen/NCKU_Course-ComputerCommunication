@@ -20,11 +20,12 @@ void error(const char *msg)
 void getFile(int sockfd){
     int n;
     int fp;
+    int _25 = 1;
     time_t cur_time;
     char timebuf[80];
     char *filename = "recv.txt";
     char buffer[SIZE];
-    long file_size,recv_size = 0;
+    long file_size, recv_size = 0;
 
     n = recv(sockfd, &file_size, sizeof(file_size),0);
     // file_size = atol(buffer);
@@ -44,13 +45,14 @@ void getFile(int sockfd){
     while( (n = read(sockfd,buffer,sizeof(buffer))) > 0){
         write(fp, buffer, n);
         recv_size += n;
-	if(recv_size >= file_size/2)
-	    printf("[+] Data received:%ld/%ld\n",recv_size,file_size);
+        if(recv_size >= (file_size/4)*_25){
+            printf("[Info] Data received:%ld/%ld\n",recv_size,file_size);
+            time(&cur_time);
+            strftime(timebuf, 80, "%Y/%m/%d %X", localtime(&cur_time));
+            printf("[Info]:\n\n\t%d%% %s\n", _25*25, timebuf);
+            _25++;
+        }
     }
-    printf("[+] FIle size:%ld\n",recv_size);
-    time(&cur_time);
-    strftime(timebuf, 80, "%Y/%m/%d %X", localtime(&cur_time));
-    printf("[Info]:\n\n\t\t100%% %s\n",timebuf);
 }
 
 int main(int argc, char *argv[])
