@@ -6,10 +6,11 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include<sys/stat.h>
+#include <sys/stat.h>
+#include <time.h>
 #include <netinet/in.h> // define sockaddr_in
-#define SIZE 1048576
-char *filename = "data_200kb.txt";
+#define SIZE 1024
+char *filename = "send.txt";
 
 int get_file_size(char* file_name){
     struct stat statbuf;
@@ -28,26 +29,42 @@ void sendFile(FILE *fp, int sockfd){
     char data[SIZE] = {0};
     // get file size
     long file_size = 0;
+    /*
     fseek(fp, 0, SEEK_END);     //把file內部pointer移動到文件尾     
     file_size = ftell(fp);      //返回目前pointer與文件起始位置的偏離量(即data size)
     fseek(fp, 0, SEEK_SET);     //把file内部pointer移回到文件起始位置
     printf("File size:%ld\n",file_size);
-    printf("Test stat file size:%d",get_file_size(filename));
-    char* file_content = malloc(get_file_size(filename));
+    */
+    file_size = get_file_size(filename);
+    printf("Test stat file size:%ld\n",file_size);
+    /*
+    char* file_content = malloc(file_size);
     fread(file_content, file_size, 1, fp);
     printf("%s\n",file_content);
     send(sockfd, file_content, file_size, 0);
     free(file_content);
-    /*
+    */
+    long cur_size = 0;
+    int length;
+    time_t cur_time;
     while(fgets(data, SIZE, fp) != NULL) {
-        printf("File Transferring...\nSending:%s",data);
-   	if (send(sockfd, data, sizeof(data), 0) == -1) {
+        printf("File Transferring...\nSending:%s %ld\n",data,sizeof(data));
+   	if ((length = send(sockfd, data, sizeof(data), 0)) == -1) {
             perror("[-]Error in sending file.\n");
             exit(1);
         }
+	cur_size += length;
+	printf("[+] receive data size:%d\n",length);
+	//if(cur_size >= file_size){
+	    char buf[80];
+	    printf("%ld %ld\n",file_size,cur_size);
+	    time(&cur_time);
+	    strftime(buf, 80, "%Y/%m/%d %X", localtime(&cur_time));
+	    printf("100%% %s\n",buf);
+	//}
         bzero(data, SIZE);
     }
-    */
+    
     printf("[+] Sent File:%s to Client Successfully!\n", filename);
 }
 

@@ -22,10 +22,11 @@ void getFile(int sockfd){
 
     fp = fopen(filename, "w");
     while (1) {
-        n = recv(sockfd, buffer, SIZE, 0);
+        n = read(sockfd, buffer, SIZE);
         if (n <= 0){
             break;
         }
+	printf("[+] receive size:%d\n",n);
         fprintf(fp, "%s", buffer);
         bzero(buffer, SIZE);
     }
