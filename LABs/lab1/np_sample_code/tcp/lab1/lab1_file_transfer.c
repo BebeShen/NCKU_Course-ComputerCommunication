@@ -6,7 +6,10 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h> 
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <time.h>
+#define SIZE 512
 
 void error(const char *msg)
 {

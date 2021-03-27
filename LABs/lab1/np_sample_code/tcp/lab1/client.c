@@ -50,8 +50,7 @@ void getFile(int sockfd){
             printf("[Info] Data received:%ld/%ld\n",recv_size,file_size);
             time(&cur_time);
             strftime(timebuf, 80, "%Y/%m/%d %X", localtime(&cur_time));
-            printf("[Info]:%d%% %s\n", _25*25, timebuf);
-            printf("----------------------------------\n");
+            printf("[Info]:%d%% %s\n\n", _25*25, timebuf);
             _25++;
         }
     }
