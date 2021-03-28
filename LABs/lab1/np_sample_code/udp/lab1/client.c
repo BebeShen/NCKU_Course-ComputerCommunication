@@ -14,6 +14,9 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <time.h>
 #define SIZE 512
 char *filename = "recv.txt";
 #define ERR_EXIT(m) \
