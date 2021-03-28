@@ -1,88 +1,118 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<unistd.h>
-#include<errno.h>
-#include<sys/types.h>
-#include<sys/socket.h>
-#include<netinet/in.h>
-#include<string.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <time.h>
-#include <netinet/in.h> // define sockaddr_in
-
-#define ERR_EXIT(m) \
-    do { \
-        perror(m); \
-        exit(EXIT_FAILURE); \
-    } while (0)
-
-void echo_ser(int sock)
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+  
+#define IP_PROTOCOL 0
+#define PORT_NO 15050
+#define NET_BUF_SIZE 32
+#define cipherKey 'S'
+#define sendrecvflag 0
+#define nofile "File Not Found!"
+  
+// function to clear buffer
+void clearBuf(char* b)
 {
-    long file_size, send_size = 0;
-    char recvbuf[1024] = {0};
-    struct sockaddr_in peeraddr;
-    socklen_t peerlen;
-    int n;
-
-    // get file size
-    int fd = open(filename, O_RDONLY);
-    struct stat stat_buf;
-    fstat(fd, &stat_buf);
-    file_size = stat_buf.st_size;
-    printf("[+] File size:%ld\n",file_size);
-
-    n = recvfrom(sock, recvbuf, sizeof(recvbuf), 0, (struct sockaddr *)&peeraddr, &peerlen);
-    if (n == -1){
-            if (errno == EINTR)
-                continue;
-            ERR_EXIT("recvfrom error");
-        }
-    peerlen = sizeof(peeraddr);
-    memset(recvbuf, 0, sizeof(recvbuf));
-    
-    // send file size
-    // send(sockfd, &file_size, sizeof(file_size), 0);
-    sendto(sock, &file_size, sizeof(file_size), 0, (struct sockaddr *)&peeraddr, peerlen);
-    while (1){
-        peerlen = sizeof(peeraddr);
-        memset(recvbuf, 0, sizeof(recvbuf));
-        // recvfrom()
-        n = recvfrom(sock, recvbuf, sizeof(recvbuf), 0, (struct sockaddr *)&peeraddr, &peerlen);
-        if (n == -1){
-            if (errno == EINTR)
-                continue;
-            ERR_EXIT("recvfrom error");
-        }
-        else if(n > 0){
-            // 將讀取的buffer輸出到畫面
-            fputs(recvbuf, stdout);
-            // sendto()
-            sendto(sock, recvbuf, n, 0, (struct sockaddr *)&peeraddr, peerlen);
-        }
-    }
-    close(sock);
+    int i;
+    for (i = 0; i < NET_BUF_SIZE; i++)
+        b[i] = '\0';
 }
-
-int main(void)
+  
+// function to encrypt
+char Cipher(char ch)
 {
-    int sock;
-    // 建立IPv4、UDP的Socket物件
-    if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) < 0)
-        ERR_EXIT("socket error");
-    // servaddr用來儲存socket server的資訊
-    struct sockaddr_in servaddr;
-    // 清空
-    memset(&servaddr, 0, sizeof(servaddr));
-    // AF_INET:IPv4, port:5188, INADDR_ANY:kernel替我決定loacl IP
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(5188);
-    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    // 將Socket綁到這個socket server
-    if (bind(sock, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
-        ERR_EXIT("bind error");
-
-    echo_ser(sock);
-
+    return ch ^ cipherKey;
+}
+  
+// function sending file
+int sendFile(FILE* fp, char* buf, int s)
+{
+    int i, len;
+    if (fp == NULL) {
+        strcpy(buf, nofile);
+        len = strlen(nofile);
+        buf[len] = EOF;
+        for (i = 0; i <= len; i++)
+            buf[i] = Cipher(buf[i]);
+        return 1;
+    }
+  
+    char ch, ch2;
+    for (i = 0; i < s; i++) {
+        ch = fgetc(fp);
+        ch2 = Cipher(ch);
+        buf[i] = ch2;
+        if (ch == EOF)
+            return 1;
+    }
+    return 0;
+}
+  
+// driver code
+int main()
+{
+    int sockfd, nBytes;
+    struct sockaddr_in addr_con;
+    int addrlen = sizeof(addr_con);
+    addr_con.sin_family = AF_INET;
+    addr_con.sin_port = htons(PORT_NO);
+    addr_con.sin_addr.s_addr = INADDR_ANY;
+    char net_buf[NET_BUF_SIZE];
+    FILE* fp;
+  
+    // socket()
+    sockfd = socket(AF_INET, SOCK_DGRAM, IP_PROTOCOL);
+  
+    if (sockfd < 0)
+        printf("\nfile descriptor not received!!\n");
+    else
+        printf("\nfile descriptor %d received\n", sockfd);
+  
+    // bind()
+    if (bind(sockfd, (struct sockaddr*)&addr_con, sizeof(addr_con)) == 0)
+        printf("\nSuccessfully binded!\n");
+    else
+        printf("\nBinding Failed!\n");
+  
+    while (1) {
+        printf("\nWaiting for file name...\n");
+  
+        // receive file name
+        clearBuf(net_buf);
+  
+        nBytes = recvfrom(sockfd, net_buf,
+                          NET_BUF_SIZE, sendrecvflag,
+                          (struct sockaddr*)&addr_con, &addrlen);
+  
+        fp = fopen(net_buf, "r");
+        printf("\nFile Name Received: %s\n", net_buf);
+        if (fp == NULL)
+            printf("\nFile open failed!\n");
+        else
+            printf("\nFile Successfully opened!\n");
+  
+        while (1) {
+  
+            // process
+            if (sendFile(fp, net_buf, NET_BUF_SIZE)) {
+                sendto(sockfd, net_buf, NET_BUF_SIZE,
+                       sendrecvflag, 
+                    (struct sockaddr*)&addr_con, addrlen);
+                break;
+            }
+  
+            // send
+            sendto(sockfd, net_buf, NET_BUF_SIZE,
+                   sendrecvflag,
+                (struct sockaddr*)&addr_con, addrlen);
+            clearBuf(net_buf);
+        }
+        if (fp != NULL)
+            fclose(fp);
+    }
     return 0;
 }

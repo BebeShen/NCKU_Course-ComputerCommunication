@@ -1,89 +1,93 @@
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
+// client code for UDP socket programming
 #include <arpa/inet.h>
-#include <stdlib.h>
+#include <netinet/in.h>
 #include <stdio.h>
-#include <errno.h>
+#include <stdlib.h>
 #include <string.h>
-
-#define ERR_EXIT(m) \
-        do \
-        { \
-                perror(m); \
-                exit(EXIT_FAILURE); \
-        } while(0)
-
-void echo_cli(int sock)
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+  
+#define IP_PROTOCOL 0
+#define IP_ADDRESS "127.0.0.1" // localhost
+#define PORT_NO 15050
+#define NET_BUF_SIZE 32
+#define cipherKey 'S'
+#define sendrecvflag 0
+  
+// function to clear buffer
+void clearBuf(char* b)
 {
-    long file_size, recv_size = 0;
-    struct sockaddr_in servaddr;
-    // 利用memset初始化，將struct sockaddr_in servaddr涵蓋的bits設為0
-    memset(&servaddr, 0, sizeof(servaddr));
-    // serv_addr為IPv4結構
-    //     補充:AF_INET和PF_INET基本上等值，AF = Address Family, PF = Protocol Family
-    //     所以，理論上建立socket時是指定協議，應該用PF_xxxx，設置地址時應該用AF_xxxx。
-    servaddr.sin_family = AF_INET;
-    // serv_addr的port為5188
-    servaddr.sin_port = htons(5188);
-    // servaddr綁127.0.0.1這個addr
-    servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-
-    int ret;
-    char sendbuf[1024] = {0};
-    char recvbuf[1024] = {0};
-    // hello server
-    sendto(sockfd, net_buf, NET_BUF_SIZE,
+    int i;
+    for (i = 0; i < NET_BUF_SIZE; i++)
+        b[i] = '\0';
+}
+  
+// function for decryption
+char Cipher(char ch)
+{
+    return ch ^ cipherKey;
+}
+  
+// function to receive file
+int recvFile(char* buf, int s)
+{
+    int i;
+    char ch;
+    for (i = 0; i < s; i++) {
+        ch = buf[i];
+        ch = Cipher(ch);
+        if (ch == EOF)
+            return 1;
+        else
+            printf("%c", ch);
+    }
+    return 0;
+}
+  
+// driver code
+int main()
+{
+    int sockfd, nBytes;
+    struct sockaddr_in addr_con;
+    int addrlen = sizeof(addr_con);
+    addr_con.sin_family = AF_INET;
+    addr_con.sin_port = htons(PORT_NO);
+    addr_con.sin_addr.s_addr = inet_addr(IP_ADDRESS);
+    char net_buf[NET_BUF_SIZE];
+    FILE* fp;
+  
+    // socket()
+    sockfd = socket(AF_INET, SOCK_DGRAM,
+                    IP_PROTOCOL);
+  
+    if (sockfd < 0)
+        printf("\nfile descriptor not received!!\n");
+    else
+        printf("\nfile descriptor %d received\n", sockfd);
+  
+    while (1) {
+        printf("\nPlease enter file name to receive:\n");
+        scanf("%s", net_buf);
+        sendto(sockfd, net_buf, NET_BUF_SIZE,
                sendrecvflag, (struct sockaddr*)&addr_con,
                addrlen);
-    // 獲取檔案大小
-    // ret = recv(sock, &file_size, sizeof(file_size),0);
-    ret = recvfrom(sock, &file_size, sizeof(file_size), 0, NULL, NULL);
-    if (ret == -1)
-    {
-        if (errno == EINTR)
-            continue;
-        ERR_EXIT("recvfrom");
-    }
-    // 將寫入buffer的內容輸出到畫面
-    fputs(recvbuf, stdout);
-    file_size = 
-    memset(sendbuf, 0, sizeof(sendbuf));
-    memset(recvbuf, 0, sizeof(recvbuf));    
-
-    while (1){
-        memset(sendbuf, 0, sizeof(sendbuf));
-        memset(recvbuf, 0, sizeof(recvbuf));
-        // receive data
-        ret = recvfrom(sock, recvbuf, sizeof(recvbuf), 0, NULL, NULL);
-        if (ret == -1){
-            if (errno == EINTR)
-                continue;
-            ERR_EXIT("recvfrom");
+  
+        printf("\n---------Data Received---------\n");
+  
+        while (1) {
+            // receive
+            clearBuf(net_buf);
+            nBytes = recvfrom(sockfd, net_buf, NET_BUF_SIZE,
+                              sendrecvflag, (struct sockaddr*)&addr_con,
+                              &addrlen);
+  
+            // process
+            if (recvFile(net_buf, NET_BUF_SIZE)) {
+                break;
+            }
         }
-        // 將寫入buffer的內容輸出到畫面
-        fputs(recvbuf, stdout);
-        
+        printf("\n-------------------------------\n");
     }
-
-    close(sock);
-
-
-}
-
-int main(void)
-{
-    int sock;
-    // int socket(int domain, int type, int protocol);
-	// 建立名為sockfd的socket()物件
-	// - domain：	PF_INET，表示此Socket目的是Hosts之間的連線，且是採用IPv4。
-	// - type：		SOCK_DGRAM，表示此Socket提供的是datagram-based protocol，屬於UDP
-	// - protocol：	0，讓kernel選擇type對應的默認協議。
-    if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) < 0)
-        ERR_EXIT("socket");
-
-    echo_cli(sock);
-
     return 0;
 }
