@@ -78,7 +78,7 @@ int main()
     else
         printf("\nBinding Failed!\n");
   
-    while (1) {
+    // while (1) {
         printf("\nWaiting for file name...\n");
   
         // receive file name
@@ -113,6 +113,6 @@ int main()
         }
         if (fp != NULL)
             fclose(fp);
-    }
+    // }
     return 0;
 }

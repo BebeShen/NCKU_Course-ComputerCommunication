@@ -66,7 +66,7 @@ int main()
     else
         printf("\nfile descriptor %d received\n", sockfd);
   
-    while (1) {
+    // while (1) {
         printf("\nPlease enter file name to receive:\n");
         scanf("%s", net_buf);
         sendto(sockfd, net_buf, NET_BUF_SIZE,
@@ -88,6 +88,6 @@ int main()
             }
         }
         printf("\n-------------------------------\n");
-    }
+    // }
     return 0;
 }
