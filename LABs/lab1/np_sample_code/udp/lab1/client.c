@@ -67,7 +67,7 @@ int main()
         // clearBuf(net_buf);
         memset(net_buf, 0, sizeof(net_buf));
         nBytes = recvfrom(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
-        recv_bytes += nBytes
+        recv_bytes += nBytes;
         // process
         if (recvFile(net_buf, NET_BUF_SIZE)) {
             break;
