@@ -38,7 +38,7 @@ int recvFile(char* buf, int s, long* size)
         if (ch == EOF)
             return 1;
         else{
-            // printf("%c", ch);
+            //printf("%c", ch);
             (*size)++;
         }
 
@@ -57,7 +57,7 @@ int main()
     addr_con.sin_port = htons(PORT_NO);
     addr_con.sin_addr.s_addr = inet_addr(IP_ADDRESS);
     char net_buf[NET_BUF_SIZE];
-    char filename[NET_BUF_SIZE] = "send.txt";
+    char filename[NET_BUF_SIZE] = "data.txt";
     FILE* fp;
   
     // socket()

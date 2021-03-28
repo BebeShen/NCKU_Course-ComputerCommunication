@@ -97,7 +97,7 @@ int main()
     while (1) {
         ret = recvfrom(sockfd, ack, 4, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
         ack[ret] = '\0';
-        printf("[+] info: %s\n",ack);
+        // printf("[+] info: %s\n",ack);
         memset(net_buf, 0, sizeof(net_buf));
         // process
         if (sendFile(fp, net_buf, NET_BUF_SIZE)) {
