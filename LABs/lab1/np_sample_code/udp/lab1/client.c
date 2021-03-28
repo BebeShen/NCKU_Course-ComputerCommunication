@@ -78,6 +78,6 @@ int main()
             break;
         }
     }
-    printf("[+] Total data received:%d\n", recv_bytes);
+    printf("[+] Total data received:%ld\n", recv_bytes);
     return 0;
 }
