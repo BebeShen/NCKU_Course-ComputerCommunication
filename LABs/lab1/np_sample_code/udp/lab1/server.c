@@ -66,6 +66,7 @@ void sendFile(FILE *fp, int sockfd){
     struct sockaddr_in peeraddr;
     socklen_t peerlen;
     int n;
+    long file_size;
     int sendBytes = 0;
 
     int fd = open(filename, O_RDONLY);
@@ -102,6 +103,6 @@ int main(void)
     FILE *fp;
     fp = fopen(filename, "r");
     // echo_ser(sock);
-    sendFile(fp,sock)
+    sendFile(fp,sock);
     return 0;
 }
