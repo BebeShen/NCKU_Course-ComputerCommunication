@@ -27,12 +27,13 @@ void clearBuf(char* b)
   
   
 // function to receive file
-int recvFile(char* buf, int s)
+int recvFile(char* buf, int s, long* size)
 {
     int i;
     char ch;
     for (i = 0; i < s; i++) {
         ch = buf[i];
+        size++;
         if (ch == EOF)
             return 1;
         else
@@ -71,10 +72,10 @@ int main()
         // clearBuf(net_buf);
         memset(net_buf, 0, sizeof(net_buf));
         nBytes = recvfrom(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
-        recv_bytes += nBytes;
+        // recv_bytes += nBytes;
         printf("[+] Data received:%ld\n[+] Current Data size:%ld\n", nBytes,recv_bytes);
         // process
-        if (recvFile(net_buf, NET_BUF_SIZE)) {
+        if (recvFile(net_buf, NET_BUF_SIZE, recv_bytes)) {
             break;
         }
     }
