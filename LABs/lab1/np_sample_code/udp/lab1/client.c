@@ -7,6 +7,9 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <time.h>
   
 #define IP_PROTOCOL 0
 #define IP_ADDRESS "127.0.0.1" // localhost

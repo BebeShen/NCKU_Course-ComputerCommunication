@@ -6,6 +6,9 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <time.h>
   
 #define IP_PROTOCOL 0
 #define PORT_NO 15050
@@ -72,12 +75,20 @@ int main()
 
     // clearBuf(net_buf);
 
+    long file_size;
+
+    // file_size = get_file_size(filename);
     
     // receive file name
     nBytes = recvfrom(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
-
-    fp = fopen(net_buf, "r");
     printf("\n[+] File Name Received: %s\n", net_buf);
+    int fd = open(net_buf, O_RDONLY);
+    struct stat stat_buf;
+    fstat(fd, &stat_buf);
+    file_size = stat_buf.st_size;
+    printf("[+] File size:%ld\n",file_size);
+    sendto(sockfd, &file_size, sizeof(file_size), sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
+    fp = fopen(net_buf, "r");
     if (fp == NULL)
         printf("\n[-] File open failed!\n");
     else
