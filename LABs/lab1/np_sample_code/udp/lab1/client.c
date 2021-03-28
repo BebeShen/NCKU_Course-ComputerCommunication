@@ -44,7 +44,8 @@ int recvFile(char* buf, int s)
 // driver code
 int main()
 {
-    int sockfd, nBytes, recv_bytes = 0;
+    int sockfd;
+    long nBytes, recv_bytes = 0;
     struct sockaddr_in addr_con;
     int addrlen = sizeof(addr_con);
     addr_con.sin_family = AF_INET;
@@ -71,11 +72,13 @@ int main()
         memset(net_buf, 0, sizeof(net_buf));
         nBytes = recvfrom(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
         recv_bytes += nBytes;
+        printf("[+] Data received:%ld\n
+                [+] Current Data size:%ld\n", nBytes,recv_bytes);
         // process
         if (recvFile(net_buf, NET_BUF_SIZE)) {
             break;
         }
     }
-    printf("[+] Total data received:%d\n", (recv_bytes/1024)/1024);
+    printf("[+] Total data received:%d\n", recv_bytes);
     return 0;
 }
