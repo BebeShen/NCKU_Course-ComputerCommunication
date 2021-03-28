@@ -65,12 +65,12 @@ void sendFile(int sockfd){
     FILE *fp;
     fp = fopen(filename, "r");
     if (fp == NULL)
-        error("[-] No such File.\n")
+        error("[-] No such File.\n");
     char* file_content = malloc(stat_buf.st_size);
     fread(file_content, stat_buf.st_size, 1, fp);
     send(sockfd, file_content, stat_buf.st_size, 0);
     free(file_content);
-    close(fp);
+    fp.close();
 }
 
 void udp_send(){
@@ -85,12 +85,11 @@ int main(int argc, char *argv[]){
     if (argc < 2) {
         error("[-] ERROR, protocol OR port not provided\n");
     }
-    char protocol[3] = argv[1];   // TCP or UDP
-    char role[5] = argv[2];       // send or recv
-    string ip = argv[3];          // ip
+    char* protocol = argv[1];   // TCP or UDP
+    char* role = argv[2];       // send or recv
+    char* ip = argv[3];          // ip
     int portno = atoi(argv[4]);   // port
     int sockfd, newsockfd;        // Socket 
-     portno;                   
     socklen_t clilen;
     struct sockaddr_in serv_addr, cli_addr;
     // UDP client usage
@@ -99,7 +98,7 @@ int main(int argc, char *argv[]){
         // 建立TCP socket
         sockfd = socket(AF_INET, SOCK_STREAM, 0);
         if (sockfd < 0)
-            error("[-] ERROR opening socket\n")
+            error("[-] ERROR opening socket\n");
         // 利用bzero初始化，將struct sockaddr_in serv_addr涵蓋的bits設為0
         bzero((char *) &serv_addr, sizeof(serv_addr));
         // serv_addr為IPv4結構
