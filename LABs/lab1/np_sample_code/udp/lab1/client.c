@@ -72,7 +72,6 @@ void getFile(int sockfd){
     int n;
     int fp;
     int _25 = 1;
-    long file_size;
     time_t cur_time;
     char timebuf[80];
     char *filename = "recv.txt";
