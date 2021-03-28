@@ -10,7 +10,7 @@
 #include <fcntl.h>
 #include <time.h>
 #define SIZE 1024
-char filename[50] = "data.txt";
+char* filename;
 
 void error(const char *msg)
 {
@@ -23,7 +23,8 @@ void getFile(int sockfd){
     int n;
     int _25 = 1;
     char buffer[SIZE];
-
+    // send file name to sender
+    n = write(sockfd, filename, strlen(filename));
     // get file size from sender
     n = recv(sockfd, &file_size, sizeof(file_size),0);
     bzero(buffer, SIZE);
@@ -53,6 +54,8 @@ void getFile(int sockfd){
 }
 
 void sendFile(int sockfd){
+    // get file name from recv
+    n = read(sockfd,&filename,sizeof(filename))
     // get file size
     long file_size;
     int fd = open(filename, O_RDONLY);
@@ -60,6 +63,7 @@ void sendFile(int sockfd){
     fstat(fd, &stat_buf);
     file_size = stat_buf.st_size;
     printf("[+] File size:%ld\n",file_size);
+    // send file size
     send(sockfd, &file_size, sizeof(file_size), 0);
 
     FILE *fp;
@@ -121,6 +125,7 @@ int main(int argc, char *argv[]){
             close(newsockfd);
         }
         else if(strcmp(role,"recv")== 0){
+            filename = argv[5];
             /* TCP Receiver */
             server = gethostbyname(ip);
             if(server == NULL)
