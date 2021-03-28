@@ -82,6 +82,7 @@ int main()
             break;
         }
     }
+    sendto(sockfd, "OK", sizeof("OK"), sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
     printf("\n[+] Total data received:%ld\n", recv_bytes);
     return 0;
 }

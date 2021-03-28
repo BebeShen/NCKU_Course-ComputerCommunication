@@ -48,7 +48,7 @@ int sendFile(FILE* fp, char* buf, int s)
 // driver code
 int main()
 {
-    int sockfd, nBytes;
+    int sockfd, nBytes, ret = -1;
     struct sockaddr_in addr_con;
     int addrlen = sizeof(addr_con);
     addr_con.sin_family = AF_INET;
@@ -93,20 +93,25 @@ int main()
         printf("\n[-] File open failed!\n");
     else
         printf("\n[+] File Successfully opened!\n");
-
+    
     while (1) {
-        memset(net_buf, 0, sizeof(net_buf));
-        // process
-        if (sendFile(fp, net_buf, NET_BUF_SIZE)) {
-            sendto(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
-            break;
-        }
-
-        // send
+    memset(net_buf, 0, sizeof(net_buf));
+    // process
+    if (sendFile(fp, net_buf, NET_BUF_SIZE)) {
         sendto(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
-        // clearBuf(net_buf);
-        //  memset(net_buf, 0, sizeof(net_buf));
+        break;
     }
+
+    // send
+    sendto(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
+    // clearBuf(net_buf);
+    //  memset(net_buf, 0, sizeof(net_buf));
+    }
+    while (ret < 0){
+        ret = recvfrom(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
+    }
+    
+    
     if (fp != NULL)
         fclose(fp);
     return 0;
