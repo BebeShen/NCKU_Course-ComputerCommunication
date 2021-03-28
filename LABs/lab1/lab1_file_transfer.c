@@ -70,7 +70,6 @@ void sendFile(int sockfd){
     fread(file_content, stat_buf.st_size, 1, fp);
     send(sockfd, file_content, stat_buf.st_size, 0);
     free(file_content);
-    fp.close();
 }
 
 void udp_send(){
