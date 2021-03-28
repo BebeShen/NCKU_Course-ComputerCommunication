@@ -37,7 +37,7 @@ int recvFile(char* buf, int s, long* size)
         if (ch == EOF)
             return 1;
         else{
-            printf("%c", ch);
+            // printf("%c", ch);
             (*size)++;
         }
 
