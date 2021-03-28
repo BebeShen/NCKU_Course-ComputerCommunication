@@ -93,7 +93,7 @@ int main(int argc, char *argv[]){
     struct sockaddr_in serv_addr, cli_addr;
     // UDP client usage
     struct hostent *server;
-    if(protocol == "tcp"){
+    if(strcmp(protocol,"tcp")== 0){
         // 建立TCP socket
         sockfd = socket(AF_INET, SOCK_STREAM, 0);
         if (sockfd < 0)
@@ -102,7 +102,7 @@ int main(int argc, char *argv[]){
         bzero((char *) &serv_addr, sizeof(serv_addr));
         // serv_addr為IPv4結構
         serv_addr.sin_family = AF_INET;
-        if(role == "send"){
+        if(strcmp(role,"send")== 0){
             /* TCP Sender */
             serv_addr.sin_addr.s_addr = INADDR_ANY;
             serv_addr.sin_port = htons(portno);
@@ -120,7 +120,7 @@ int main(int argc, char *argv[]){
             /* close Client File Descriptor*/
             close(newsockfd);
         }
-        else if(role == "recv"){
+        else if(strcmp(role,"recv")== 0){
             /* TCP Receiver */
             server = gethostbyname(argv[1]);
             if(server == NULL)
@@ -135,11 +135,11 @@ int main(int argc, char *argv[]){
         /* close File Descriptor*/
         close(sockfd);
     }
-    else if(protocol == "udp"){
-        if(role == "send"){
+    else if(strcmp(protocol,"udp")== 0){
+        if(strcmp(role,"send")== 0){
             udp_send();
         }
-        else if(role == "recv"){
+        else if(strcmp(role,"recv")== 0){
             udp_recv();
         }
     }
