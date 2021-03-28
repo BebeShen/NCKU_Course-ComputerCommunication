@@ -74,7 +74,8 @@ int main()
     while (1) {
         // receive
         // clearBuf(net_buf);
-        sendto(sockfd, UDP_ACK, 4, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
+        
+        // sendto(sockfd, UDP_ACK, 4, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
         memset(net_buf, 0, sizeof(net_buf));
         nBytes = recvfrom(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
         // recv_bytes += nBytes;

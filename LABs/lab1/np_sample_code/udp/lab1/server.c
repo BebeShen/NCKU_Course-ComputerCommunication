@@ -95,8 +95,9 @@ int main()
         printf("\n[+] File Successfully opened!\n");
     
     while (1) {
-        ret = recvfrom(sockfd, ack, 4, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
-        ack[ret] = '\0';
+        // ret = recvfrom(sockfd, ack, 4, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
+        // ack[ret] = '\0';
+        usleep(1);
         // printf("[+] info: %s\n",ack);
         memset(net_buf, 0, sizeof(net_buf));
         // process
