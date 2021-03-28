@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in serv_addr;
     struct hostent *server;
 
-    char buffer[256];
+    // char buffer[256];
     // 執行時參數需要>=3
     // $ ./<執行檔檔名> <hostname> <port number> 
     // 例如：./client localhost 5566
