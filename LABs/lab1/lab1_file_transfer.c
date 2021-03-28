@@ -122,7 +122,7 @@ int main(int argc, char *argv[]){
         }
         else if(strcmp(role,"recv")== 0){
             /* TCP Receiver */
-            server = gethostbyname(argv[1]);
+            server = gethostbyname(ip);
             if(server == NULL)
                 error("[-] ERROR, no such host\n");
             
