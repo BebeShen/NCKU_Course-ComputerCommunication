@@ -51,7 +51,8 @@ int main()
     addr_con.sin_family = AF_INET;
     addr_con.sin_port = htons(PORT_NO);
     addr_con.sin_addr.s_addr = inet_addr(IP_ADDRESS);
-    char net_buf[NET_BUF_SIZE] = "send.txt";
+    char net_buf[NET_BUF_SIZE];
+    char filename[NET_BUF_SIZE] = "send.txt";
     FILE* fp;
   
     // socket()
@@ -62,9 +63,7 @@ int main()
     else
         printf("\n[+] file descriptor %d received\n", sockfd);
   
-    sendto(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
-
-    printf("\n[+] Data Received:\n");
+    sendto(sockfd, filename, sizeof(filename), sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
 
     while (1) {
         // receive
@@ -78,6 +77,6 @@ int main()
             break;
         }
     }
-    printf("[+] Total data received:%ld\n", recv_bytes);
+    printf("\n[+] Total data received:%ld\n", recv_bytes);
     return 0;
 }
