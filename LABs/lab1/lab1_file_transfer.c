@@ -55,7 +55,7 @@ void getFile(int sockfd){
 
 void sendFile(int sockfd){
     // get file name from recv
-    n = read(sockfd,&filename,sizeof(filename))
+    int n = read(sockfd,&filename,sizeof(filename));
     // get file size
     long file_size;
     int fd = open(filename, O_RDONLY);
