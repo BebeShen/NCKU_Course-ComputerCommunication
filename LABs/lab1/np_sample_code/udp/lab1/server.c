@@ -10,7 +10,6 @@
 #define IP_PROTOCOL 0
 #define PORT_NO 15050
 #define NET_BUF_SIZE 32
-#define cipherKey 'S'
 #define sendrecvflag 0
 #define nofile "File Not Found!"
   
@@ -22,12 +21,6 @@ void clearBuf(char* b)
         b[i] = '\0';
 }
   
-// function to encrypt
-char Cipher(char ch)
-{
-    return ch ^ cipherKey;
-}
-  
 // function sending file
 int sendFile(FILE* fp, char* buf, int s)
 {
@@ -36,16 +29,13 @@ int sendFile(FILE* fp, char* buf, int s)
         strcpy(buf, nofile);
         len = strlen(nofile);
         buf[len] = EOF;
-        for (i = 0; i <= len; i++)
-            buf[i] = Cipher(buf[i]);
         return 1;
     }
   
-    char ch, ch2;
+    char ch;
     for (i = 0; i < s; i++) {
         ch = fgetc(fp);
-        ch2 = Cipher(ch);
-        buf[i] = ch2;
+        buf[i] = ch;
         if (ch == EOF)
             return 1;
     }
@@ -78,41 +68,35 @@ int main()
     else
         printf("\nBinding Failed!\n");
   
-    // while (1) {
-        printf("\nWaiting for file name...\n");
-  
-        // receive file name
-        clearBuf(net_buf);
-  
-        nBytes = recvfrom(sockfd, net_buf,
-                          NET_BUF_SIZE, sendrecvflag,
-                          (struct sockaddr*)&addr_con, &addrlen);
-  
-        fp = fopen(net_buf, "r");
-        printf("\nFile Name Received: %s\n", net_buf);
-        if (fp == NULL)
-            printf("\nFile open failed!\n");
-        else
-            printf("\nFile Successfully opened!\n");
-  
-        while (1) {
-  
-            // process
-            if (sendFile(fp, net_buf, NET_BUF_SIZE)) {
-                sendto(sockfd, net_buf, NET_BUF_SIZE,
-                       sendrecvflag, 
-                    (struct sockaddr*)&addr_con, addrlen);
-                break;
-            }
-  
-            // send
-            sendto(sockfd, net_buf, NET_BUF_SIZE,
-                   sendrecvflag,
-                (struct sockaddr*)&addr_con, addrlen);
-            clearBuf(net_buf);
+    printf("\nWaiting for file name...\n");
+
+    // clearBuf(net_buf);
+
+    
+    // receive file name
+    nBytes = recvfrom(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
+
+    fp = fopen(net_buf, "r");
+    printf("\n[+] File Name Received: %s\n", net_buf);
+    if (fp == NULL)
+        printf("\n[-] File open failed!\n");
+    else
+        printf("\n[+] File Successfully opened!\n");
+
+    while (1) {
+        memset(net_buf, 0, sizeof(net_buf));
+        // process
+        if (sendFile(fp, net_buf, NET_BUF_SIZE)) {
+            sendto(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
+            break;
         }
-        if (fp != NULL)
-            fclose(fp);
-    // }
+
+        // send
+        sendto(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
+        // clearBuf(net_buf);
+        //  memset(net_buf, 0, sizeof(net_buf));
+    }
+    if (fp != NULL)
+        fclose(fp);
     return 0;
 }

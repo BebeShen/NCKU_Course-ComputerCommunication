@@ -12,7 +12,6 @@
 #define IP_ADDRESS "127.0.0.1" // localhost
 #define PORT_NO 15050
 #define NET_BUF_SIZE 32
-#define cipherKey 'S'
 #define sendrecvflag 0
   
 // function to clear buffer
@@ -23,11 +22,6 @@ void clearBuf(char* b)
         b[i] = '\0';
 }
   
-// function for decryption
-char Cipher(char ch)
-{
-    return ch ^ cipherKey;
-}
   
 // function to receive file
 int recvFile(char* buf, int s)
@@ -36,7 +30,6 @@ int recvFile(char* buf, int s)
     char ch;
     for (i = 0; i < s; i++) {
         ch = buf[i];
-        ch = Cipher(ch);
         if (ch == EOF)
             return 1;
         else
@@ -48,46 +41,38 @@ int recvFile(char* buf, int s)
 // driver code
 int main()
 {
-    int sockfd, nBytes;
+    int sockfd, nBytes, recv_bytes = 0;
     struct sockaddr_in addr_con;
     int addrlen = sizeof(addr_con);
     addr_con.sin_family = AF_INET;
     addr_con.sin_port = htons(PORT_NO);
     addr_con.sin_addr.s_addr = inet_addr(IP_ADDRESS);
-    char net_buf[NET_BUF_SIZE];
+    char net_buf[NET_BUF_SIZE] = "send.txt";
     FILE* fp;
   
     // socket()
-    sockfd = socket(AF_INET, SOCK_DGRAM,
-                    IP_PROTOCOL);
+    sockfd = socket(AF_INET, SOCK_DGRAM, IP_PROTOCOL);
   
     if (sockfd < 0)
-        printf("\nfile descriptor not received!!\n");
+        printf("\n[-] file descriptor not received!!\n");
     else
-        printf("\nfile descriptor %d received\n", sockfd);
+        printf("\n[+] file descriptor %d received\n", sockfd);
   
-    // while (1) {
-        printf("\nPlease enter file name to receive:\n");
-        scanf("%s", net_buf);
-        sendto(sockfd, net_buf, NET_BUF_SIZE,
-               sendrecvflag, (struct sockaddr*)&addr_con,
-               addrlen);
-  
-        printf("\n---------Data Received---------\n");
-  
-        while (1) {
-            // receive
-            clearBuf(net_buf);
-            nBytes = recvfrom(sockfd, net_buf, NET_BUF_SIZE,
-                              sendrecvflag, (struct sockaddr*)&addr_con,
-                              &addrlen);
-  
-            // process
-            if (recvFile(net_buf, NET_BUF_SIZE)) {
-                break;
-            }
+    sendto(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
+
+    printf("\n[+] Data Received:\n");
+
+    while (1) {
+        // receive
+        // clearBuf(net_buf);
+        memset(net_buf, 0, sizeof(net_buf));
+        nBytes = recvfrom(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
+        recv_bytes += nBytes
+        // process
+        if (recvFile(net_buf, NET_BUF_SIZE)) {
+            break;
         }
-        printf("\n-------------------------------\n");
-    // }
+    }
+    printf("[+] Total data received:%d\n", (recv_bytes/1024)/1024);
     return 0;
 }
