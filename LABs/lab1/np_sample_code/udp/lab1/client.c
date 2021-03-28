@@ -64,7 +64,7 @@ int main()
         printf("\n[+] file descriptor %d received\n", sockfd);
   
     sendto(sockfd, filename, sizeof(filename), sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
-    recvfrom(sockfd, file_size, sizeof(file_size), sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
+    recvfrom(sockfd, &file_size, sizeof(file_size), sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
     printf("[+] file size:%ld\n", file_size);
     while (1) {
         // receive
