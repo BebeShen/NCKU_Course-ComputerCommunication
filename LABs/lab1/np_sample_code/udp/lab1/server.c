@@ -26,11 +26,12 @@ void echo_ser(int sock)
     struct sockaddr_in peeraddr;
     socklen_t peerlen;
     int n;
+    int sendBytes = 0;
 
     while (1){
         peerlen = sizeof(peeraddr);
         memset(recvbuf, 0, sizeof(recvbuf));
-        // recvfrom()
+        // recvfrom():從client接收訊息
         n = recvfrom(sock, recvbuf, sizeof(recvbuf), 0, (struct sockaddr *)&peeraddr, &peerlen);
         if (n == -1){
             if (errno == EINTR)
@@ -39,11 +40,13 @@ void echo_ser(int sock)
         }
         else if(n > 0){
             // 將讀取的buffer輸出到畫面
+            sendBytes += n;
             fputs(recvbuf, stdout);
             // sendto()
             sendto(sock, recvbuf, n, 0, (struct sockaddr *)&peeraddr, peerlen);
         }
     }
+    printf("Total bytes send:%d\n", sendBytes);
     close(sock);
 }
 

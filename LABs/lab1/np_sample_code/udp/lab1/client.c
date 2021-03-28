@@ -37,14 +37,14 @@ void echo_cli(int sock)
     // servaddr綁127.0.0.1這個addr
     servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
-    int ret;
+    int ret, recvBytes = 0;
     char sendbuf[1024] = {0};
     char recvbuf[1024] = {0};
     while (fgets(sendbuf, sizeof(sendbuf), stdin) != NULL)
     {
-        // sendto()
+        // sendto():將sendbuf傳給socket
         sendto(sock, sendbuf, strlen(sendbuf), 0, (struct sockaddr *)&servaddr, sizeof(servaddr));
-        // recvfrom()
+        // recvfrom():從server接收訊息
         ret = recvfrom(sock, recvbuf, sizeof(recvbuf), 0, NULL, NULL);
         if (ret == -1)
         {
@@ -52,12 +52,13 @@ void echo_cli(int sock)
                 continue;
             ERR_EXIT("recvfrom");
         }
+        recvBytes += ret;
         // 將寫入buffer的內容輸出到畫面
         fputs(recvbuf, stdout);
         memset(sendbuf, 0, sizeof(sendbuf));
         memset(recvbuf, 0, sizeof(recvbuf));
     }
-
+    printf("Total bytes received:%d\n", recvBytes);
     close(sock);
 
 
