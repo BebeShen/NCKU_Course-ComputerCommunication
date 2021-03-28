@@ -100,10 +100,10 @@ int main(int argc, char *argv[]){
             error("[-] ERROR opening socket\n");
         // 利用bzero初始化，將struct sockaddr_in serv_addr涵蓋的bits設為0
         bzero((char *) &serv_addr, sizeof(serv_addr));
-        // serv_addr為IPv4結構
-        serv_addr.sin_family = AF_INET;
         if(strcmp(role,"send")== 0){
             /* TCP Sender */
+            // serv_addr為IPv4結構
+            serv_addr.sin_family = AF_INET;
             serv_addr.sin_addr.s_addr = INADDR_ANY;
             serv_addr.sin_port = htons(portno);
             if (bind(sockfd, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
@@ -126,7 +126,9 @@ int main(int argc, char *argv[]){
             if(server == NULL)
                 error("[-] ERROR, no such host\n");
             
+            serv_addr.sin_family = AF_INET;
             bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
+            serv_addr.sin_port = htons(portno);
             if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
                 error("[-] ERROR connecting");
 
