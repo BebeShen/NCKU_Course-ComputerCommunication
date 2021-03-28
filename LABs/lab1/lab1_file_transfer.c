@@ -23,8 +23,6 @@ void getFile(int sockfd){
     int n;
     int _25 = 1;
     char buffer[SIZE];
-    // send file name to sender
-    n = write(sockfd, filename, strlen(filename));
     // get file size from sender
     n = recv(sockfd, &file_size, sizeof(file_size),0);
     bzero(buffer, SIZE);
@@ -54,8 +52,6 @@ void getFile(int sockfd){
 }
 
 void sendFile(int sockfd){
-    // get file name from recv
-    int n = read(sockfd,&filename,sizeof(filename));
     // get file size
     long file_size;
     int fd = open(filename, O_RDONLY);
@@ -105,6 +101,7 @@ int main(int argc, char *argv[]){
         // 利用bzero初始化，將struct sockaddr_in serv_addr涵蓋的bits設為0
         bzero((char *) &serv_addr, sizeof(serv_addr));
         if(strcmp(role,"send")== 0){
+            filename = argv[5];
             /* TCP Sender */
             // serv_addr為IPv4結構
             serv_addr.sin_family = AF_INET;
@@ -125,7 +122,6 @@ int main(int argc, char *argv[]){
             close(newsockfd);
         }
         else if(strcmp(role,"recv")== 0){
-            filename = argv[5];
             /* TCP Receiver */
             server = gethostbyname(ip);
             if(server == NULL)
