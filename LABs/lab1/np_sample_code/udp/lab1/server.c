@@ -48,13 +48,15 @@ int sendFile(FILE* fp, char* buf, int s)
 // driver code
 int main()
 {
-    int sockfd, nBytes, ret = -1;
+    int sockfd, nBytes, ret;
+    long file_size;
     struct sockaddr_in addr_con;
     int addrlen = sizeof(addr_con);
     addr_con.sin_family = AF_INET;
     addr_con.sin_port = htons(PORT_NO);
     addr_con.sin_addr.s_addr = INADDR_ANY;
     char net_buf[NET_BUF_SIZE];
+    char ack[4] = {0};
     FILE* fp;
   
     // socket()
@@ -75,8 +77,6 @@ int main()
 
     // clearBuf(net_buf);
 
-    long file_size;
-
     // file_size = get_file_size(filename);
     
     // receive file name
@@ -95,21 +95,23 @@ int main()
         printf("\n[+] File Successfully opened!\n");
     
     while (1) {
-    memset(net_buf, 0, sizeof(net_buf));
-    // process
-    if (sendFile(fp, net_buf, NET_BUF_SIZE)) {
+        ret = recvfrom(sockfd, ack, 4, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
+        ack[ret] = '\0';
+        printf("[+] info: %s\n",ack);
+        memset(net_buf, 0, sizeof(net_buf));
+        // process
+        if (sendFile(fp, net_buf, NET_BUF_SIZE)) {
+            sendto(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
+            break;
+         }
+        // send
         sendto(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
-        break;
+        // clearBuf(net_buf);
+        //  memset(net_buf, 0, sizeof(net_buf));
     }
-
-    // send
-    sendto(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
-    // clearBuf(net_buf);
-    //  memset(net_buf, 0, sizeof(net_buf));
-    }
-    while (ret < 0){
-        ret = recvfrom(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
-    }
+    // while (ret < 0){
+    //     ret = recvfrom(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
+    // }
     
     
     if (fp != NULL)
