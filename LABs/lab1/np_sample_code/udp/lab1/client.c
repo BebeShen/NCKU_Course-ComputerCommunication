@@ -45,7 +45,7 @@ int recvFile(char* buf, int s)
 int main()
 {
     int sockfd;
-    long nBytes, recv_bytes = 0;
+    long nBytes, recv_bytes = 0, file_size;
     struct sockaddr_in addr_con;
     int addrlen = sizeof(addr_con);
     addr_con.sin_family = AF_INET;
@@ -64,7 +64,8 @@ int main()
         printf("\n[+] file descriptor %d received\n", sockfd);
   
     sendto(sockfd, filename, sizeof(filename), sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
-
+    recvfrom(sockfd, file_size, sizeof(file_size), sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
+    printf("[+] file size:%ld\n", file_size);
     while (1) {
         // receive
         // clearBuf(net_buf);
