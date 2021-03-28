@@ -12,7 +12,7 @@
   
 #define IP_PROTOCOL 0
 #define PORT_NO 15050
-#define NET_BUF_SIZE 32
+#define NET_BUF_SIZE 512
 #define sendrecvflag 0
 #define nofile "File Not Found!"
   
