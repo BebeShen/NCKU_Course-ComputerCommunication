@@ -9,7 +9,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
-#define SIZE 512
+#define SIZE 1024
 
 void error(const char *msg)
 {

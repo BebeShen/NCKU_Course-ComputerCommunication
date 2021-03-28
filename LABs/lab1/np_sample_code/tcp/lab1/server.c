@@ -10,7 +10,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <netinet/in.h> // define sockaddr_in
-#define SIZE 512
+#define SIZE 1024
 char *filename = "data.txt";
 
 int get_file_size(char* file_name){
