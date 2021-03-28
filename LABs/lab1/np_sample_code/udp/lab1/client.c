@@ -33,11 +33,14 @@ int recvFile(char* buf, int s, long* size)
     char ch;
     for (i = 0; i < s; i++) {
         ch = buf[i];
-        size++;
+        // (*size)++;
         if (ch == EOF)
             return 1;
-        else
+        else{
             printf("%c", ch);
+            (*size)++;
+        }
+
     }
     return 0;
 }
@@ -75,7 +78,7 @@ int main()
         // recv_bytes += nBytes;
         printf("[+] Data received:%ld\n[+] Current Data size:%ld\n", nBytes,recv_bytes);
         // process
-        if (recvFile(net_buf, NET_BUF_SIZE, recv_bytes)) {
+        if (recvFile(net_buf, NET_BUF_SIZE, &recv_bytes)) {
             break;
         }
     }
