@@ -9,7 +9,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
-#define SIZE 512
+#define SIZE 1024
 
 void error(const char *msg)
 {
@@ -50,8 +50,7 @@ void getFile(int sockfd){
             printf("[Info] Data received:%ld/%ld\n",recv_size,file_size);
             time(&cur_time);
             strftime(timebuf, 80, "%Y/%m/%d %X", localtime(&cur_time));
-            printf("[Info]:%d%% %s\n", _25*25, timebuf);
-            printf("----------------------------------\n");
+            printf("[Info]:%d%% %s\n\n", _25*25, timebuf);
             _25++;
         }
     }
@@ -67,7 +66,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in serv_addr;
     struct hostent *server;
 
-    char buffer[256];
+    // char buffer[256];
     // 執行時參數需要>=3
     // $ ./<執行檔檔名> <hostname> <port number> 
     // 例如：./client localhost 5566
