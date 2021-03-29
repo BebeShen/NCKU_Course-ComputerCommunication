@@ -26,28 +26,18 @@ void getFile(int sockfd){
     n = recv(sockfd, &file_size, sizeof(file_size),0);
     bzero(buffer, SIZE);
     int fp = open("output.txt", O_CREAT | O_WRONLY, 0644);
-    /* time function */
-    time_t cur_time;
-    char timebuf[80];
-    // start clock()
-    clock_t start_time = clock();
     // read file from socket
     while( (n = read(sockfd,buffer,sizeof(buffer))) > 0){
         write(fp, buffer, n);
-        recv_size += n;
-        if(recv_size >= (file_size/4)*_25){
-            printf("[Info] Data received:%ld/%ld\n",recv_size,file_size);
-            time(&cur_time);
-            strftime(timebuf, 80, "%Y/%m/%d %X", localtime(&cur_time));
-            printf("[Info]:%d%% %s\n\n", _25*25, timebuf);
-            _25++;
-        }
+        // recv_size += n;
+        // if(recv_size >= (file_size/4)*_25){
+        //     printf("[Info] Data send:%ld/%ld\n",recv_size,file_size);
+        //     time(&cur_time);
+        //     strftime(timebuf, 80, "%Y/%m/%d %X", localtime(&cur_time));
+        //     printf("[Info]:%d%% %s\n\n", _25*25, timebuf);
+        //     _25++;
+        // }
     }
-    // end clock()
-    clock_t end_time = clock();
-    double time_spent = (double)(end_time - start_time) / CLOCKS_PER_SEC;
-    printf("[+] Total tran time: %d ms\n", (int)(time_spent*1000));
-    printf("[+] FIle Size:%ld MB\n", (file_size/1024)/1024);
 }
 
 void sendFile(int sockfd){
@@ -71,6 +61,11 @@ void sendFile(int sockfd){
     // if (fp == NULL)
     //     error("[-] No such File.\n");
     int fp = open(filename, O_RDONLY);
+    // start clock()
+    clock_t start_time = clock();
+    /* time function */
+    time_t cur_time;
+    char timebuf[80];
     // read file to socket
     while( (n = read(fp,buffer,sizeof(buffer))) > 0){
         write(sockfd, buffer, n);
@@ -83,6 +78,11 @@ void sendFile(int sockfd){
             _25++;
         }
     }
+    // end clock()
+    clock_t end_time = clock();
+    double time_spent = (double)(end_time - start_time);
+    printf("[+] Total trans time: %f ms\n", (time_spent));
+    printf("[+] file Size:%ldMB\n", (file_size/1024)/1024);
     // char* file_content = malloc(stat_buf.st_size);
     // fread(file_content, stat_buf.st_size, 1, fp);
     // send(sockfd, file_content, stat_buf.st_size, 0);
