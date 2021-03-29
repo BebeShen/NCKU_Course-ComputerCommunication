@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in addr_con;
     int addrlen = sizeof(addr_con);
     char* ip = argv[3];
-    int portno = argv[4];
+    int portno = atoi(argv[4]);
     // server socket ip addr setting
     addr_con.sin_family = AF_INET;
     addr_con.sin_port = htons(portno);
