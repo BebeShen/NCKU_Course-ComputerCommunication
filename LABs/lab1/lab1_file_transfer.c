@@ -70,7 +70,7 @@ void sendFile(int sockfd){
     // fp = fopen(filename, "r");
     // if (fp == NULL)
     //     error("[-] No such File.\n");
-    int fd = open(filename, O_RDONLY);
+    int fp = open(filename, O_RDONLY);
     // read file to socket
     while( (n = read(fp,buffer,sizeof(buffer))) > 0){
         write(sockfd, buffer, n);
