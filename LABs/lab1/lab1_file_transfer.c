@@ -31,7 +31,7 @@ void getFile(int sockfd){
         write(fp, buffer, n);
         // recv_size += n;
         // if(recv_size >= (file_size/4)*_25){
-        //     printf("[Info] Data send:%ld/%ld\n",recv_size,file_size);
+        //     printf("[Info] Data received:%ld/%ld\n",recv_size,file_size);
         //     time(&cur_time);
         //     strftime(timebuf, 80, "%Y/%m/%d %X", localtime(&cur_time));
         //     printf("[Info]:%d%% %s\n\n", _25*25, timebuf);
@@ -68,7 +68,7 @@ void sendFile(int sockfd){
         write(sockfd, buffer, n);
         send_size += n;
         if(send_size >= (file_size/4)*_25){
-            printf("[Info] Data received:%ld/%ld\n",send_size,file_size);
+            printf("[Info] Data send:%ld/%ld\n",send_size,file_size);
             time(&cur_time);
             strftime(timebuf, 80, "%Y/%m/%d %X", localtime(&cur_time));
             printf("[Info]:%d%% %s\n\n", _25*25, timebuf);
