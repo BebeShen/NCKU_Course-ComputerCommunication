@@ -16,14 +16,6 @@
 #define sendrecvflag 0
 #define nofile "File Not Found!"
   
-// function to clear buffer
-void clearBuf(char* b)
-{
-    int i;
-    for (i = 0; i < NET_BUF_SIZE; i++)
-        b[i] = '\0';
-}
-  
 // function sending file
 int sendFile(FILE* fp, char* buf, int s)
 {
@@ -46,53 +38,50 @@ int sendFile(FILE* fp, char* buf, int s)
 }
   
 // driver code
-int main()
+int main(int argc, char *argv[])
 {
     int sockfd, nBytes, ret;
     long file_size;
-    struct sockaddr_in addr_con;
-    int addrlen = sizeof(addr_con);
-    addr_con.sin_family = AF_INET;
-    addr_con.sin_port = htons(PORT_NO);
-    addr_con.sin_addr.s_addr = INADDR_ANY;
     char net_buf[NET_BUF_SIZE];
     char ack[4] = {0};
     FILE* fp;
-  
+    
+    struct sockaddr_in addr_con;
+    int addrlen = sizeof(addr_con);
+    char* ip = argv[3];
+    int portno = argv[4];
+    // server socket ip addr settin
+    addr_con.sin_family = AF_INET;
+    addr_con.sin_port = htons(portno);
+    addr_con.sin_addr.s_addr = INADDR_ANY;
     // socket()
     sockfd = socket(AF_INET, SOCK_DGRAM, IP_PROTOCOL);
   
     if (sockfd < 0)
-        printf("\nfile descriptor not received!!\n");
+        printf("[-] file descriptor not received!!\n");
     else
-        printf("\nfile descriptor %d received\n", sockfd);
+        printf("[+] file descriptor %d received\n", sockfd);
   
     // bind()
     if (bind(sockfd, (struct sockaddr*)&addr_con, sizeof(addr_con)) == 0)
-        printf("\nSuccessfully binded!\n");
+        printf("[+] Successfully binded!\n");
     else
-        printf("\nBinding Failed!\n");
-  
-    printf("\nWaiting for file name...\n");
+        printf("[-] Binding Failed!\n");
 
-    // clearBuf(net_buf);
-
-    // file_size = get_file_size(filename);
-    
     // receive file name
     nBytes = recvfrom(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
     printf("\n[+] File Name Received: %s\n", net_buf);
+    // get file size
     int fd = open(net_buf, O_RDONLY);
     struct stat stat_buf;
     fstat(fd, &stat_buf);
     file_size = stat_buf.st_size;
     printf("[+] File size:%ld\n",file_size);
+    // send file size
     sendto(sockfd, &file_size, sizeof(file_size), sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
     fp = fopen(net_buf, "r");
     if (fp == NULL)
-        printf("\n[-] File open failed!\n");
-    else
-        printf("\n[+] File Successfully opened!\n");
+        printf("[-] File open failed!\n");
     
     while (1) {
         // ret = recvfrom(sockfd, ack, 4, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
@@ -110,9 +99,6 @@ int main()
         // clearBuf(net_buf);
         //  memset(net_buf, 0, sizeof(net_buf));
     }
-    // while (ret < 0){
-    //     ret = recvfrom(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
-    // }
     
     
     if (fp != NULL)
