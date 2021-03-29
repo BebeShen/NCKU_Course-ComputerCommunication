@@ -63,9 +63,6 @@ void sendFile(int sockfd){
     int fp = open(filename, O_RDONLY);
     // start clock()
     clock_t start_time = clock();
-    /* time function */
-    time_t cur_time;
-    char timebuf[80];
     // read file to socket
     while( (n = read(fp,buffer,sizeof(buffer))) > 0){
         write(sockfd, buffer, n);
