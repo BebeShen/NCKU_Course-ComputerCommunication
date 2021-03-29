@@ -98,10 +98,11 @@ int main(int argc, char *argv[])
     }
     // end clock()
     clock_t end_time = clock();
-    double time_spent = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+    double time_spent = (double)(end_time - start_time);
     printf("\n[+] Total data received:%ld\n[+] File size:%ld\n", recv_bytes, file_size);
     printf("[+] Packet Loss Rate(loss data size/total size):%lf\n", (((double)(file_size-recv_bytes))/(double)file_size));
-    printf("[+] Total tran time: %lf ms\n", (time_spent*1000));
+    printf("[+] Total tran time: %f ms\n",time_spent);
+    printf("[+] Total tran time: %f s\n", (time_spent / CLOCKS_PER_SEC));
     printf("[+] FIle Size:%ld MB\n", (file_size/1024)/1024);
     sendto(sockfd, "OK", sizeof("OK"), sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
     close(sockfd);

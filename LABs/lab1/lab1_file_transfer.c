@@ -61,15 +61,27 @@ void sendFile(int sockfd){
     printf("[+] File size:%ld\n",file_size);
     // send file size
     send(sockfd, &file_size, sizeof(file_size), 0);
-
+    
     FILE *fp;
     fp = fopen(filename, "r");
     if (fp == NULL)
         error("[-] No such File.\n");
-    char* file_content = malloc(stat_buf.st_size);
-    fread(file_content, stat_buf.st_size, 1, fp);
-    send(sockfd, file_content, stat_buf.st_size, 0);
-    free(file_content);
+    // read file to socket
+    while( (n = read(fp,buffer,sizeof(buffer))) > 0){
+        write(sockfd, buffer, n);
+        recv_size += n;
+        if(recv_size >= (file_size/4)*_25){
+            printf("[Info] Data received:%ld/%ld\n",recv_size,file_size);
+            time(&cur_time);
+            strftime(timebuf, 80, "%Y/%m/%d %X", localtime(&cur_time));
+            printf("[Info]:%d%% %s\n\n", _25*25, timebuf);
+            _25++;
+        }
+    }
+    // char* file_content = malloc(stat_buf.st_size);
+    // fread(file_content, stat_buf.st_size, 1, fp);
+    // send(sockfd, file_content, stat_buf.st_size, 0);
+    // free(file_content);
 }
 
 void udp_send(){

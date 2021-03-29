@@ -86,7 +86,8 @@ int main(int argc, char *argv[])
     while (1) {
         // ret = recvfrom(sockfd, ack, 4, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
         // ack[ret] = '\0';
-        usleep(1);
+        
+        // usleep(1);
         // printf("[+] info: %s\n",ack);
         memset(net_buf, 0, sizeof(net_buf));
         // process file, if fp == EOF break
