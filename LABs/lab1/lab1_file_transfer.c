@@ -20,8 +20,7 @@ void error(const char *msg)
 
 void getFile(int sockfd){
     long file_size, recv_size = 0;
-    int n;
-    int _25 = 1;
+    int n, _25 = 1;
     char buffer[SIZE];
     // get file size from sender
     n = recv(sockfd, &file_size, sizeof(file_size),0);
@@ -52,8 +51,13 @@ void getFile(int sockfd){
 }
 
 void sendFile(int sockfd){
+    int n, _25 = 1;
+    char buffer[SIZE];
+    /* time function */
+    time_t cur_time;
+    char timebuf[80];
     // get file size
-    long file_size;
+    long file_size, send_size = 0;
     int fd = open(filename, O_RDONLY);
     struct stat stat_buf;
     fstat(fd, &stat_buf);
@@ -69,9 +73,9 @@ void sendFile(int sockfd){
     // read file to socket
     while( (n = read(fp,buffer,sizeof(buffer))) > 0){
         write(sockfd, buffer, n);
-        recv_size += n;
-        if(recv_size >= (file_size/4)*_25){
-            printf("[Info] Data received:%ld/%ld\n",recv_size,file_size);
+        send_size += n;
+        if(send_size >= (file_size/4)*_25){
+            printf("[Info] Data received:%ld/%ld\n",send_size,file_size);
             time(&cur_time);
             strftime(timebuf, 80, "%Y/%m/%d %X", localtime(&cur_time));
             printf("[Info]:%d%% %s\n\n", _25*25, timebuf);
