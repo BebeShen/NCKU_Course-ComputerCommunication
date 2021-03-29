@@ -66,10 +66,11 @@ void sendFile(int sockfd){
     // send file size
     send(sockfd, &file_size, sizeof(file_size), 0);
     
-    FILE *fp;
-    fp = fopen(filename, "r");
-    if (fp == NULL)
-        error("[-] No such File.\n");
+    // FILE *fp;
+    // fp = fopen(filename, "r");
+    // if (fp == NULL)
+    //     error("[-] No such File.\n");
+    int fd = open(filename, O_RDONLY);
     // read file to socket
     while( (n = read(fp,buffer,sizeof(buffer))) > 0){
         write(sockfd, buffer, n);
