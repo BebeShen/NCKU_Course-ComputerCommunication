@@ -79,6 +79,7 @@ void sendFile(int sockfd){
     clock_t end_time = clock();
     double time_spent = (double)(end_time - start_time);
     printf("[+] Total trans time: %f ms\n", (time_spent));
+    printf("[+] Total trans time: %f s\n", (time_spent/CLOCKS_PER_SEC));
     printf("[+] file Size:%ldMB\n", (file_size/1024)/1024);
     // char* file_content = malloc(stat_buf.st_size);
     // fread(file_content, stat_buf.st_size, 1, fp);
