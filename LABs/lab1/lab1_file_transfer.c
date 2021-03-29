@@ -25,7 +25,7 @@ void getFile(int sockfd){
     // get file size from sender
     n = recv(sockfd, &file_size, sizeof(file_size),0);
     bzero(buffer, SIZE);
-    int fp = open(filename, O_CREAT | O_WRONLY, 0644);
+    int fp = open("output.txt", O_CREAT | O_WRONLY, 0644);
     /* time function */
     time_t cur_time;
     char timebuf[80];
