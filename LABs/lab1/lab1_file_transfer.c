@@ -199,8 +199,6 @@ void udpSendFile(int sockfd, struct sockaddr_in addr_con, int addrlen){
     // end clock()
     clock_t end_time = clock();
     double time_spent = (double)(end_time - start_time);
-    printf("\n[+] Total data received:%ld\n[+] File size:%ld\n", send_size, file_size);
-    printf("[+] Packet Loss Rate(loss data size/total size):%lf\n", (((double)(file_size-send_size))/(double)file_size));
     printf("[+] Total tran time: %f ms\n",time_spent);
     printf("[+] Total tran time: %f s\n", (time_spent / CLOCKS_PER_SEC));
     printf("[+] FIle Size:%ld MB\n", (file_size/1024)/1024);
@@ -211,7 +209,7 @@ void udpSendFile(int sockfd, struct sockaddr_in addr_con, int addrlen){
 void udpGetFile(int sockfd, struct sockaddr_in addr_con, int addrlen){
     long file_size, recv_size = 0;
     char buffer[SIZE];
-    int n, _25 = 1;;
+    int n;
     sendto(sockfd, "ACK", sizeof("ACK"), sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
     recvfrom(sockfd, &file_size, sizeof(file_size), sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
     printf("[+] file size:%ld\n", file_size);
@@ -225,7 +223,8 @@ void udpGetFile(int sockfd, struct sockaddr_in addr_con, int addrlen){
             break;
         }
     }
-    
+    printf("\n[+] Total data received:%ld\n[+] File size:%ld\n", recv_size, file_size);
+    printf("[+] Packet Loss Rate(loss data size/total size):%lf\n", (((double)(file_size-recv_size))/(double)file_size));
     sendto(sockfd, "OK", sizeof("OK"), sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
 }
 
