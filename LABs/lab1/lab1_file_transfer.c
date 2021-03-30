@@ -194,7 +194,8 @@ void udpGetFile(int sockfd, struct sockaddr_in addr_con, int addrlen){
         // sendto(sockfd, UDP_ACK, 4, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
         memset(buffer, 0, sizeof(buffer));
         n = recvfrom(sockfd, buffer, buffer_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
-        write(fp, buffer, n);
+        if(n>0)
+            write(fp, buffer, buffer_SIZE);
         // process File
         if (recvFile(buffer, buffer_SIZE, &recv_size)) {
             break;
