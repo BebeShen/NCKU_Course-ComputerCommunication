@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
+#include <arpa/inet.h>
 #define IP_PROTOCOL 0
 #define buffer_SIZE 512
 #define sendrecvflag 0
