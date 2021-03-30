@@ -110,7 +110,7 @@ int sendFile(FILE* fp, char* buf, int s, long* size)
         buf[i] = ch;
         if (ch == EOF)
             return 1;
-        
+        (*size)++;
     }
     return 0;
 }
