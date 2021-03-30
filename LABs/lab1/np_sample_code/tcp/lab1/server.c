@@ -10,7 +10,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <netinet/in.h> // define sockaddr_in
-#define SIZE 512
+#define SIZE 1024
 char *filename = "data.txt";
 
 int get_file_size(char* file_name){
@@ -26,8 +26,8 @@ void error(const char *msg)
 }
 
 void sendFile(FILE *fp, int sockfd){
-    int n;
-    char data[SIZE] = {0};
+    // int n;
+    // char data[SIZE] = {0};
     // get file size
     long file_size;
     /*
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 {
     int sockfd, newsockfd, portno;
     socklen_t clilen;
-    char buffer[256];
+    // char buffer[256];
     struct sockaddr_in serv_addr, cli_addr;
     int n;
     // 執行時參數需要>=2
