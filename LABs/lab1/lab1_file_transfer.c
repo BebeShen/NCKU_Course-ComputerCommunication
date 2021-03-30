@@ -190,7 +190,7 @@ void udpGetFile(int sockfd, struct sockaddr_in addr_con, int addrlen){
     long file_size, recv_size = 0;
     char buffer[SIZE];
     int n, _25 = 1;;
-    sendto(sockfd, filename, sizeof(filename), sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
+    sendto(sockfd, "ACK", sizeof("ACK"), sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
     recvfrom(sockfd, &file_size, sizeof(file_size), sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
     printf("[+] file size:%ld\n", file_size);
     // start clock()
@@ -238,8 +238,8 @@ int main(int argc, char *argv[]){
         // 利用bzero初始化，將struct sockaddr_in serv_addr涵蓋的bits設為0
         bzero((char *) &serv_addr, sizeof(serv_addr));
         if(strcmp(role,"send")== 0){
-            filename = argv[5];
             /* TCP Sender */
+            filename = argv[5];
             // serv_addr為IPv4結構
             serv_addr.sin_family = AF_INET;
             serv_addr.sin_addr.s_addr = INADDR_ANY;
@@ -282,6 +282,7 @@ int main(int argc, char *argv[]){
         if (sockfd < 0)
             error("[-] file descriptor not received!!\n");
         if(strcmp(role,"send")== 0){
+            filename = argv[5];
             // server socket ip addr settin
             serv_addr.sin_family = AF_INET;
             serv_addr.sin_port = htons(portno);
