@@ -31,6 +31,7 @@ void tcpGetFile(int sockfd){
     // get file size from sender
     n = recv(sockfd, &file_size, sizeof(file_size),0);
     bzero(buffer, SIZE);
+    // 寫入檔案
     int fp = open("output.txt", O_CREAT | O_WRONLY, 0644);
     // read file from socket
     while( (n = read(sockfd,buffer,sizeof(buffer))) > 0){
@@ -215,7 +216,13 @@ int main(int argc, char *argv[]){
     // TCP client usage
     struct hostent *server;
     if(strcmp(protocol,"tcp")== 0){
-        // 建立TCP socket
+        /*  
+            建立TCP socket
+            *   AF_INET，表示此Socket目的是Hosts之間的連線，且是採用IPv4。
+            *   SOCK_STREAM，表示此Socket提供的是Connection-Oriented Byte-Stream，屬於TCP
+            *   protocol：	0，讓kernel選擇type對應的默認協議。
+            *   Socket物件若建立失敗會回傳-1，表示INVALID_SOCKET 
+        */
         sockfd = socket(AF_INET, SOCK_STREAM, 0);
         if (sockfd < 0)
             error("[-] ERROR opening socket\n");
@@ -224,10 +231,23 @@ int main(int argc, char *argv[]){
         if(strcmp(role,"send")== 0){
             /* TCP Sender */
             filename = argv[5];
-            // serv_addr為IPv4結構
+            /*  
+                設定Server socket
+                *   AF_INET:serv_addr為IPv4結構
+                *   當process想要建立連線或接收新封包，process需要透過bind()來綁定local interface的address
+                    對於Server而言，若不希望只是綁定localhost，則設此值為INADDR_ANY，如此Socket就會bind這台Host上所有ip
+                    懶人包：我不在乎local IP是什麼，讓kernel替我決定就好。
+                *   htons()將Endian調整成network endian(little endian)
+                *   serv_addr的port為傳進來的port number
+            */
             serv_addr.sin_family = AF_INET;
             serv_addr.sin_addr.s_addr = INADDR_ANY;
             serv_addr.sin_port = htons(portno);
+            /*
+                將剛剛設定的server bind到socket上
+                *   透過bind()將剛剛的ip address綁到socket上
+                *   若bind失敗會回傳-1，若成功則回傳0
+            */
             if (bind(sockfd, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
                 error("[-] ERROR on binding\n");
             listen(sockfd,5);
@@ -247,7 +267,13 @@ int main(int argc, char *argv[]){
             server = gethostbyname(ip);
             if(server == NULL)
                 error("[-] ERROR, no such host\n");
-            
+            /*  
+                設定Server socket
+                *   AF_INET:serv_addr為IPv4結構
+                *   利用bcopy()將執行參數的ip轉為socket的ip可讀型態
+                *   htons()將Endian調整成network endian(little endian)
+                *   serv_addr的port為執行參數傳進來的port number
+            */
             serv_addr.sin_family = AF_INET;
             bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
             serv_addr.sin_port = htons(portno);
@@ -261,26 +287,51 @@ int main(int argc, char *argv[]){
     }
     else if(strcmp(protocol,"udp")== 0){
         int addrlen = sizeof(serv_addr);
-        // socket()
+        /*  
+            建立TCP socket
+            *   AF_INET，表示此Socket目的是Hosts之間的連線，且是採用IPv4。
+            *   SOCK_STREAM，表示此Socket提供的是Connection-Oriented Byte-Stream，屬於TCP
+            *   protocol：	0，讓kernel選擇type對應的默認協議。
+            *   Socket物件若建立失敗會回傳-1，表示INVALID_SOCKET 
+        */
         sockfd = socket(AF_INET, SOCK_DGRAM, IP_PROTOCOL);
         if (sockfd < 0)
             error("[-] file descriptor not received!!\n");
         if(strcmp(role,"send")== 0){
+            /* UDP Sender */
             filename = argv[5];
-            // server socket ip addr settin
+            /*  
+                設定Server socket
+                *   AF_INET:serv_addr為IPv4結構
+                *   INADDR_ANY:讓kernel決定local IP。
+                *   htons()將Endian調整成network endian(little endian)
+                *   serv_addr的port為傳進來的port number
+            */
             serv_addr.sin_family = AF_INET;
-            serv_addr.sin_port = htons(portno);
             serv_addr.sin_addr.s_addr = INADDR_ANY;
-            // bind()
-            if (bind(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) == 0)
-                printf("[+] Successfully binded!\n");
+            serv_addr.sin_port = htons(portno);
+            /*
+                將剛剛設定的server bind到socket上
+                *   透過bind()將剛剛的ip address綁到socket上
+                *   若bind失敗會回傳-1，若成功則回傳0
+            */
+            if (bind(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0)
+                error("[-] ERROR on binding\n");
             udpSendFile(sockfd, serv_addr, addrlen);
         }
         else if(strcmp(role,"recv")== 0){
-            // server socket ip addr setting
+            /* UDP Receiver */
+            /*  
+                設定Server socket
+                *   AF_INET:serv_addr為IPv4結構
+                *   INADDR_ANY:讓kernel決定local IP。
+                *   htons()將Endian調整成network endian(little endian)
+                *   serv_addr的port為傳進來的port number
+            */
             serv_addr.sin_family = AF_INET;
+            // serv_addr.sin_addr.s_addr = inet_addr(LOCAL_ADDRESS);
+            serv_addr.sin_addr.s_addr = INADDR_ANY;
             serv_addr.sin_port = htons(portno);
-            serv_addr.sin_addr.s_addr = inet_addr(LOCAL_ADDRESS);
             udpGetFile(sockfd, serv_addr, addrlen);
         }
         close(sockfd);
