@@ -94,7 +94,7 @@ void tcpSendFile(int sockfd){
 }
 
 // function sending file
-int sendFile(FILE* fp, char* buf, int s)
+int sendFile(FILE* fp, char* buf, int s, long* size)
 {
     int i, len;
     if (fp == NULL) {
@@ -110,51 +110,9 @@ int sendFile(FILE* fp, char* buf, int s)
         buf[i] = ch;
         if (ch == EOF)
             return 1;
+        
     }
     return 0;
-}
-
-void udpSendFile(int sockfd, struct sockaddr_in addr_con, int addrlen){
-    int n, _25 = 1;
-    char buffer[SIZE];
-    /* time function */
-    time_t cur_time;
-    char timebuf[80];
-    // get file size
-    long file_size, send_size = 0;
-    // receive file name
-    n = recvfrom(sockfd, buffer, SIZE, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
-    printf("\n[+] File Name Received: %s\n", filename);
-    // get file size
-    int fd = open(filename, O_RDONLY);
-    struct stat stat_buf;
-    fstat(fd, &stat_buf);
-    file_size = stat_buf.st_size;
-    printf("[+] File size:%ld\n",file_size);
-    // send file size
-    sendto(sockfd, &file_size, sizeof(file_size), sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
-    FILE* fp = fopen(filename, "r");
-    if (fp == NULL)
-        error("[-] File open failed!\n");
-    while (1) {
-        /* ACK */
-        // ret = recvfrom(sockfd, ack, 4, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
-        // ack[ret] = '\0';
-        
-        /* sleep */
-        // usleep(1);
-        memset(buffer, 0, sizeof(buffer));
-        // process file, if fp == EOF break
-        if (sendFile(fp, buffer, buffer_SIZE)) {
-            sendto(sockfd, buffer, buffer_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
-            break;
-         }
-        // send
-        sendto(sockfd, buffer, buffer_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
-    }
-    
-    if (fp != NULL)
-        fclose(fp);
 }
 
 void checkProcess(long recv_size, long file_size, int* _25){
@@ -186,25 +144,57 @@ int recvFile(char* buf, int s, long* size)
     return 0;
 }
 
-void udpGetFile(int sockfd, struct sockaddr_in addr_con, int addrlen){
-    long file_size, recv_size = 0;
+void udpSendFile(int sockfd, struct sockaddr_in addr_con, int addrlen){
+    int n, _25 = 1;
     char buffer[SIZE];
-    int n, _25 = 1;;
-    sendto(sockfd, "ACK", sizeof("ACK"), sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
-    recvfrom(sockfd, &file_size, sizeof(file_size), sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
-    printf("[+] file size:%ld\n", file_size);
+    /* time function */
+    time_t cur_time;
+    char timebuf[80];
+    // get file size
+    long file_size, send_size = 0;
+    // receive file name
+    n = recvfrom(sockfd, buffer, SIZE, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
+    printf("\n[+] File Name Received: %s\n", filename);
+    // get file size
+    int fd = open(filename, O_RDONLY);
+    struct stat stat_buf;
+    fstat(fd, &stat_buf);
+    file_size = stat_buf.st_size;
+    printf("[+] File size:%ld\n",file_size);
+    // send file size
+    sendto(sockfd, &file_size, sizeof(file_size), sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
+    FILE* fp = fopen(filename, "r");
+    if (fp == NULL)
+        error("[-] File open failed!\n");
     // start clock()
     clock_t start_time = clock();
     while (1) {
-        // receive
-        // sendto(sockfd, UDP_ACK, 4, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
+        /* ACK */
+        // ret = recvfrom(sockfd, ack, 4, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
+        // ack[ret] = '\0';
+        
+        /* sleep */
+        // usleep(1);
+        
         memset(buffer, 0, sizeof(buffer));
-        n = recvfrom(sockfd, buffer, buffer_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
-        // process File
-        if (recvFile(buffer, buffer_SIZE, &recv_size)) {
+        // process file, if fp == EOF break
+        if (sendFile(fp, buffer, buffer_SIZE, &send_size)) {
+            sendto(sockfd, buffer, buffer_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
+            
+            time(&cur_time);
+            strftime(timebuf, 80, "%Y/%m/%d %X", localtime(&cur_time));
+            printf("[Info]:%d%% %s\n\n", 100, timebuf);
             break;
+         }
+        // send
+        sendto(sockfd, buffer, buffer_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
+        if(send_size >= (file_size/4)*(*_25)){
+            printf("[Info] Data received:%ld/%ld\n",recv_size,file_size);
+            time(&cur_time);
+            strftime(timebuf, 80, "%Y/%m/%d %X", localtime(&cur_time));
+            printf("[Info]:%d%% %s\n\n", (*_25)*25, timebuf);
+            (*_25)++;
         }
-        checkProcess(n, file_size, &_25);
     }
     // end clock()
     clock_t end_time = clock();
@@ -214,6 +204,28 @@ void udpGetFile(int sockfd, struct sockaddr_in addr_con, int addrlen){
     printf("[+] Total tran time: %f ms\n",time_spent);
     printf("[+] Total tran time: %f s\n", (time_spent / CLOCKS_PER_SEC));
     printf("[+] FIle Size:%ld MB\n", (file_size/1024)/1024);
+    if (fp != NULL)
+        fclose(fp);
+}
+
+void udpGetFile(int sockfd, struct sockaddr_in addr_con, int addrlen){
+    long file_size, recv_size = 0;
+    char buffer[SIZE];
+    int n, _25 = 1;;
+    sendto(sockfd, "ACK", sizeof("ACK"), sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
+    recvfrom(sockfd, &file_size, sizeof(file_size), sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
+    printf("[+] file size:%ld\n", file_size);
+    while (1) {
+        // receive
+        // sendto(sockfd, UDP_ACK, 4, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
+        memset(buffer, 0, sizeof(buffer));
+        n = recvfrom(sockfd, buffer, buffer_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
+        // process File
+        if (recvFile(buffer, buffer_SIZE, &recv_size)) {
+            break;
+        }
+    }
+    
     sendto(sockfd, "OK", sizeof("OK"), sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
 }
 
