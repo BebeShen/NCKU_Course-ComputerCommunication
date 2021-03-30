@@ -184,6 +184,8 @@ void udpGetFile(int sockfd, struct sockaddr_in addr_con, int addrlen){
     long file_size, recv_size = 0;
     char buffer[SIZE];
     int n;
+    // 寫入檔案
+    int fp = open("output.txt", O_CREAT | O_WRONLY, 0644);
     sendto(sockfd, "ACK", sizeof("ACK"), sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
     recvfrom(sockfd, &file_size, sizeof(file_size), sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
     printf("[+] file size:%ld\n", file_size);
@@ -192,6 +194,7 @@ void udpGetFile(int sockfd, struct sockaddr_in addr_con, int addrlen){
         // sendto(sockfd, UDP_ACK, 4, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
         memset(buffer, 0, sizeof(buffer));
         n = recvfrom(sockfd, buffer, buffer_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
+        write(fp, buffer, n);
         // process File
         if (recvFile(buffer, buffer_SIZE, &recv_size)) {
             break;
