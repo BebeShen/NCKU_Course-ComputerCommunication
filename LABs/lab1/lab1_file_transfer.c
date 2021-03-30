@@ -286,7 +286,7 @@ int main(int argc, char *argv[]){
             serv_addr.sin_port = htons(portno);
             serv_addr.sin_addr.s_addr = INADDR_ANY;
             // bind()
-            if (bind(sockfd, (struct sockaddr*)&addr_con, sizeof(addr_con)) == 0)
+            if (bind(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) == 0)
                 error("[+] Successfully binded!\n");
             udpSendFile(sockfd, serv_addr, addrlen);
         }
