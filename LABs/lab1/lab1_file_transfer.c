@@ -258,7 +258,12 @@ int main(int argc, char *argv[]){
             */
             listen(sockfd,5);
             clilen = sizeof(cli_addr);
-            // get client socket File Descriptor
+            /*
+                Server接受請求，並產生一個Socket File Descriptor
+                *   當accept()被調用時，它會為該請求產生出一個新的Socket，並把這個請求從監聽隊列剔除掉。  
+                *   accept()是Blocking的，waits for connection before returning，
+                    意即其直到有connection才會return。          
+            */
             newsockfd = accept(sockfd,(struct sockaddr *) &cli_addr,&clilen);
             if (newsockfd < 0)
                 error("[-] ERROR on accept\n");
