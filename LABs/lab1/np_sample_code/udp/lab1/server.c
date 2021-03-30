@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in addr_con;
     int addrlen = sizeof(addr_con);
     char* ip = argv[3];
-    int portno = argv[4];
+    int portno = atoi(argv[4]);
     // server socket ip addr settin
     addr_con.sin_family = AF_INET;
     addr_con.sin_port = htons(portno);
@@ -86,10 +86,11 @@ int main(int argc, char *argv[])
     while (1) {
         // ret = recvfrom(sockfd, ack, 4, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
         // ack[ret] = '\0';
-        usleep(1);
+        
+        // usleep(1);
         // printf("[+] info: %s\n",ack);
         memset(net_buf, 0, sizeof(net_buf));
-        // process
+        // process file, if fp == EOF break
         if (sendFile(fp, net_buf, NET_BUF_SIZE)) {
             sendto(sockfd, net_buf, NET_BUF_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
             break;
@@ -103,5 +104,6 @@ int main(int argc, char *argv[])
     
     if (fp != NULL)
         fclose(fp);
+    close(sockfd);
     return 0;
 }
