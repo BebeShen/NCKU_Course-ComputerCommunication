@@ -188,12 +188,12 @@ void udpSendFile(int sockfd, struct sockaddr_in addr_con, int addrlen){
          }
         // send
         sendto(sockfd, buffer, buffer_SIZE, sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
-        if(send_size >= (file_size/4)*(*_25)){
-            printf("[Info] Data received:%ld/%ld\n",recv_size,file_size);
+        if(send_size >= (file_size/4)*(_25)){
+            printf("[Info] Data received:%ld/%ld\n",send_size,file_size);
             time(&cur_time);
             strftime(timebuf, 80, "%Y/%m/%d %X", localtime(&cur_time));
-            printf("[Info]:%d%% %s\n\n", (*_25)*25, timebuf);
-            (*_25)++;
+            printf("[Info]:%d%% %s\n\n", (_25)*25, timebuf);
+            (_25)++;
         }
     }
     // end clock()
