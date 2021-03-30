@@ -250,6 +250,12 @@ int main(int argc, char *argv[]){
             */
             if (bind(sockfd, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
                 error("[-] ERROR on binding\n");
+            /*
+                Server開啟監聽佇列
+                *   由於Server一次只能服務一個人，當港口出入頻繁時，我們得讓來客照拜訪的先後排成隊列，
+                    即是說每當一個請求送到Server，Socket就會把它丟到監聽隊列的尾端。
+                *   5代表最多最多能有幾個人能連入server，即時說這個監聽的佇列究竟有多大。
+            */
             listen(sockfd,5);
             clilen = sizeof(cli_addr);
             // get client socket File Descriptor
