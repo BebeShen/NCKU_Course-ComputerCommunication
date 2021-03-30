@@ -124,16 +124,16 @@ void udpSendFile(int sockfd, struct sockaddr_in addr_con, int addrlen){
     long file_size, send_size = 0;
     // receive file name
     n = recvfrom(sockfd, buffer, SIZE, sendrecvflag, (struct sockaddr*)&addr_con, &addrlen);
-    printf("\n[+] File Name Received: %s\n", buffer);
+    printf("\n[+] File Name Received: %s\n", filename);
     // get file size
-    int fd = open(buffer, O_RDONLY);
+    int fd = open(filename, O_RDONLY);
     struct stat stat_buf;
     fstat(fd, &stat_buf);
     file_size = stat_buf.st_size;
     printf("[+] File size:%ld\n",file_size);
     // send file size
     sendto(sockfd, &file_size, sizeof(file_size), sendrecvflag, (struct sockaddr*)&addr_con, addrlen);
-    FILE* fp = fopen(buffer, "r");
+    FILE* fp = fopen(filename, "r");
     if (fp == NULL)
         error("[-] File open failed!\n");
     while (1) {
@@ -289,7 +289,7 @@ int main(int argc, char *argv[]){
             serv_addr.sin_addr.s_addr = INADDR_ANY;
             // bind()
             if (bind(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) == 0)
-                error("[+] Successfully binded!\n");
+                printf("[+] Successfully binded!\n");
             udpSendFile(sockfd, serv_addr, addrlen);
         }
         else if(strcmp(role,"recv")== 0){
