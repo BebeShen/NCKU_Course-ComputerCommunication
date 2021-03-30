@@ -288,6 +288,11 @@ int main(int argc, char *argv[]){
             serv_addr.sin_family = AF_INET;
             bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
             serv_addr.sin_port = htons(portno);
+            /*
+                從Client連向Server
+                *   客戶端要連向伺服端，需要先知道並儲存伺服端的IP及port。
+                *   在<netinet/in.h>函式庫中已經定義好了名為sockaddr_in的struct來儲存這些資訊。
+            */
             if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
                 error("[-] ERROR connecting");
 
